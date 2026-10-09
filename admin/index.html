@@ -314,10 +314,14 @@
   .candidato .azioni .scarta { background: var(--accent-danger); color: #fff; }
   .candidato .azioni .annulla-scarto { background: #3a3b40; color: var(--fg); }
   .candidato .nota-scarto { margin-top: 0.6rem; }
-  .aggiungi-email { margin-top: 0.4rem; font-size: 0.85rem; }
-  .aggiungi-email .apri { background: none; border: none; padding: 0; color: var(--accent); cursor: pointer; font: inherit; }
-  .aggiungi-email .riga { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
-  .aggiungi-email input { flex: 1 1 14rem; min-width: 0; }
+  .aggiungi-email { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.82rem; }
+  .aggiungi-email .apri { background: none; border: none; padding: 0; margin: 0; color: var(--accent); cursor: pointer; font: inherit; }
+  .aggiungi-email .apri:hover { text-decoration: underline; }
+  .aggiungi-email .riga { display: inline-flex; gap: 0.3rem; align-items: center; }
+  .aggiungi-email .riga[hidden] { display: none; }
+  .aggiungi-email input { width: 11rem; padding: 0.1rem 0.4rem; font-size: 0.78rem; margin: 0; border-radius: 4px; }
+  .aggiungi-email .salva { padding: 0.1rem 0.5rem; font-size: 0.78rem; margin: 0; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; }
+  .aggiungi-email .messaggio { margin: 0; font-size: 0.78rem; }
   .candidato .decisione { margin-top: 0.5rem; font-size: 0.82rem; color: var(--muted); }
   .candidato .apri-popup { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
   .candidato .apri-popup:hover { color: var(--accent); text-decoration-color: var(--accent); }
@@ -874,7 +878,7 @@ function creaModulo(bando) {
 // "+ Aggiungi email" apre un campo per inserirla a mano. Scrive solo
 // contact_email (unica colonna in più concessa al pannello per questo).
 function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
-  const box = document.createElement("div");
+  const box = document.createElement("span");
   box.className = "aggiungi-email";
   const apri = document.createElement("button");
   apri.type = "button";
@@ -882,7 +886,7 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   apri.textContent = "+ Aggiungi email";
   box.appendChild(apri);
 
-  const campo = document.createElement("div");
+  const campo = document.createElement("span");
   campo.className = "riga";
   campo.hidden = true;
   const input = document.createElement("input");
@@ -895,7 +899,7 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   campo.append(input, salva);
   box.appendChild(campo);
 
-  const messaggio = document.createElement("div");
+  const messaggio = document.createElement("span");
   messaggio.className = "messaggio";
   box.appendChild(messaggio);
 
@@ -1032,9 +1036,8 @@ function creaRigaFonteCompleta(fonte) {
   `;
 
   if (!fonte.contact_email) {
-    li.insertBefore(
-      creaAggiungiEmail("sources", fonte, () => li.replaceWith(creaRigaFonteCompleta(fonte))),
-      li.querySelector(".messaggio")
+    li.querySelector(".link-veloci").appendChild(
+      creaAggiungiEmail("sources", fonte, () => li.replaceWith(creaRigaFonteCompleta(fonte)))
     );
   }
 
@@ -1202,7 +1205,7 @@ function creaRigaCandidato(candidato, nelPopup = false) {
   linkVeloci.innerHTML = linkHtml;
   li.appendChild(linkVeloci);
   if (!candidato.contact_email) {
-    li.appendChild(creaAggiungiEmail("source_candidates", candidato, () => {
+    linkVeloci.appendChild(creaAggiungiEmail("source_candidates", candidato, () => {
       disegnaCandidate();
       if (nelPopup) apriPopupCandidato(candidato);
     }));
