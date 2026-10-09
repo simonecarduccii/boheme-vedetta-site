@@ -5,412 +5,445 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Bohème Vedetta — Revisione bandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
 <style>
+  /* Design "A · Crema" (boheme-design/proposte/pannello-vedetta/finale/SPECIFICA.md) */
   :root {
-    --bg: #16171a;
-    --fg: #eee;
-    --muted: #9a9a9a;
-    --line: #2c2d31;
-    --accent: #d98a3d;
-    --accent-danger: #c0503f;
-    --card-bg: #1d1e22;
-    --ok: #4f9d6e;
+    --giallo: #CCA40B;
+    --giallo-scuro: #8A6D00;
+    --giallo-chiaro: #F1E9CE;
+    --crema: #FFFDF5;
+    --beige: #F3F1E6;
+    --bianco: #FFFEFD;
+    --nero: #252114;
+    --grigio: #918C7B;
+    --linee: #E7E2CF;
+    --rosso: #C0503F;
+    --rosso-chiaro: #FCE5E3;
+    --verde: #4F9D6E;
+    --titoli: "Montserrat", system-ui, sans-serif;
+    --testo: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    line-height: 1.5;
+    background: var(--crema);
+    color: var(--nero);
+    font-family: var(--testo);
+    font-size: 14px;
+    line-height: 1.45;
   }
-  header {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  a { color: inherit; }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; padding: 0; }
+  button:disabled { opacity: 0.55; cursor: default; }
+  input, textarea, select { font: inherit; color: var(--nero); }
+  [hidden] { display: none !important; }
+
+  /* ---- bottoni (componenti) ---- */
+  .btn-primario {
+    background: var(--giallo); color: var(--bianco);
+    font-weight: 600; font-size: 13px;
+    padding: 10px 18px; border-radius: 999px; white-space: nowrap;
   }
-  header h1 {
-    font-size: 1.4rem;
-    margin: 0;
+  .btn-primario:hover { background: var(--giallo-scuro); }
+  .btn-link {
+    color: var(--nero); font-weight: 500; font-size: 13px;
+    text-decoration: underline; text-underline-offset: 3px;
+    padding: 10px; white-space: nowrap;
   }
-  header .sotto {
-    color: var(--muted);
-    font-size: 0.85rem;
+  .btn-link:hover { color: var(--giallo-scuro); }
+  .btn-secondario {
+    border: 1px solid var(--nero); color: var(--nero);
+    font-weight: 500; font-size: 13px;
+    padding: 8px 16px; border-radius: 999px; white-space: nowrap;
   }
-  main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 1.5rem 4rem;
-  }
-  button {
-    font: inherit;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
-  }
-  input, textarea {
-    font: inherit;
-    background: #101114;
-    color: var(--fg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 0.5rem 0.6rem;
+  .btn-secondario:hover { background: var(--beige); }
+
+  /* ---- campi dei moduli (non nel Figma: stesso stile) ---- */
+  .campo input, .campo textarea, .modulo input, .modulo textarea, .nota-scarto textarea, #login input {
     width: 100%;
+    background: var(--bianco);
+    border: 1px solid var(--linee);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 14px;
   }
   textarea { min-height: 5rem; resize: vertical; }
-  label {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 0.2rem;
-    margin-top: 0.7rem;
+  input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--giallo); outline-offset: 1px; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--grigio); margin: 12px 0 4px; }
+
+  /* ---- testata ---- */
+  .testata {
+    background: var(--giallo);
+    height: 83px;
+    padding: 22px 48px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    color: var(--bianco);
   }
+  .testata .marchio { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .testata .marchio svg { display: block; flex: none; }
+  .testata .separatore { width: 1px; height: 22px; background: var(--linee); flex: none; }
+  .testata .nome-pannello { font-family: var(--titoli); font-weight: 600; font-size: 15px; white-space: nowrap; }
+  .testata .utente { display: flex; align-items: center; gap: 16px; }
+  .testata #utente-corrente { font-size: 13px; }
+  .testata #logout { border-color: var(--bianco); color: var(--bianco); }
+  .testata #logout:hover { background: rgba(255,255,255,0.15); }
+
+  /* ---- contenuto ---- */
+  main {
+    max-width: calc(1024px + 2 * 32px);
+    margin: 0 auto;
+    padding: 64px 32px;
+    display: flex; flex-direction: column; gap: 32px;
+  }
+  .su, .giu { display: flex; flex-direction: column; gap: 24px; }
+  .intestazione h1 {
+    font-family: var(--titoli); font-weight: 700; font-size: 30px;
+    letter-spacing: -0.01em; line-height: 1.2; margin: 0;
+  }
+  .intestazione p { margin: 4px 0 0; font-size: 15px; font-weight: 500; color: var(--giallo-scuro); min-height: 1.45em; }
+
+  .sezioni { display: flex; gap: 28px; }
+  .sezioni button {
+    font-family: var(--titoli); font-size: 16px; font-weight: 600; color: var(--grigio);
+    padding-bottom: 9px; position: relative;
+  }
+  .sezioni button.attivo { color: var(--nero); font-weight: 700; }
+  .sezioni button.attivo::after {
+    content: ""; position: absolute; left: 0; bottom: 0;
+    width: 40px; height: 3px; border-radius: 2px; background: var(--giallo);
+  }
+
+  .pillole { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pillole button {
+    background: var(--beige); color: var(--nero);
+    font-size: 14px; font-weight: 500;
+    padding: 10px 18px; border-radius: 999px;
+  }
+  .pillole button.attivo { background: var(--giallo); color: var(--bianco); font-weight: 600; }
+
+  /* riga ricerca + filtri */
+  .riga-ricerca { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ricerca {
+    flex: 1 1 260px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--beige); border-radius: 999px;
+    height: 40px; padding: 11px 16px; margin: 0;
+  }
+  .ricerca svg { flex: none; color: var(--grigio); }
+  .ricerca input {
+    border: none; background: transparent; padding: 0; width: 100%; font-size: 14px; outline: none;
+  }
+  .ricerca:focus-within { outline: 2px solid var(--giallo); outline-offset: 1px; }
+  .ricerca input::placeholder { color: var(--grigio); }
+  .ricerca input::-webkit-search-cancel-button { cursor: pointer; }
+  .filtro, .riga-ricerca select {
+    background: var(--beige); color: var(--nero);
+    font-size: 14px; font-weight: 500;
+    padding: 10px 18px; border-radius: 12px; border: none;
+    height: 37px;
+  }
+  .filtro.attivo { background: var(--giallo); color: var(--bianco); font-weight: 600; }
+  .riga-ricerca select {
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    padding-right: 38px; /* freccia a 8px dal testo */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23252114' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center;
+  }
+
+  .stato-elenco { color: var(--grigio); text-align: center; padding: 8px 0; }
+  .stato-elenco:empty { display: none; }
+  ul.elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+  #elenco-candidate { gap: 12px; }
+
+  /* ---- card ---- */
+  .card {
+    background: var(--beige);
+    border-radius: 20px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 20px;
+    align-items: center;
+  }
+  .card > .pieno, .card > .messaggio { grid-column: 1 / -1; }
+  .card .testi { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .card .titolo {
+    font-family: var(--titoli); font-weight: 700; font-size: 16px; line-height: 1.3;
+    text-align: left; overflow-wrap: anywhere;
+  }
+  button.titolo:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--giallo); }
+  .card .dettagli { font-size: 13px; color: var(--grigio); overflow-wrap: anywhere; }
+  .card .dettagli a { color: var(--grigio); text-decoration: none; }
+  .card .dettagli a:hover { color: var(--nero); text-decoration: underline; }
+  .card .dettagli .punto { margin: 0 6px; }
+  .azioni-card { display: flex; align-items: center; gap: 8px; }
+  .messaggio { font-size: 13px; }
+  .messaggio:empty { display: none; }
+  .card > .messaggio { margin-top: 10px; }
+  .messaggio.ok { color: var(--verde); }
+  .messaggio.errore { color: var(--rosso); }
+
+  /* card bando */
+  .bando { padding: 18px 20px; grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .bando .testi { gap: 8px; }
+  .bando .titolo { font-size: 17px; }
+  .scadenza-box {
+    width: 64px; height: 64px; border-radius: 12px;
+    background: var(--giallo); color: var(--bianco);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .scadenza-box .mese { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+  .scadenza-box .giorno { font-size: 26px; font-weight: 700; }
+  .scadenza-box.scaduto { background: var(--grigio); }
+  .riga-tag { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .riga-tag:empty { display: none; }
+  .tag {
+    display: inline-block; border-radius: 999px; padding: 4px 10px;
+    font-size: 11px; font-weight: 600; line-height: 1.2; color: #fff;
+  }
+  .tag.versione-nuova { background: transparent; border: 1px solid var(--giallo); color: var(--giallo-scuro); padding: 3px 9px; cursor: pointer; }
+  .tag.pubblicato { background: transparent; border: 1px solid var(--verde); color: var(--verde); padding: 3px 9px; }
+  .avviso {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--rosso-chiaro); color: var(--rosso);
+    font-size: 12px; font-weight: 500;
+    border-radius: 10px; padding: 7px 12px; line-height: 1.2;
+  }
+  .avviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rosso); flex: none; }
+  .riga-tag .tag + .avviso, .riga-tag .avviso:first-child { margin-left: 0; }
+  .riga-tag .tag ~ .avviso { margin-left: 10px; }
+  @media (max-width: 720px) { .riga-tag .tag ~ .avviso { margin-left: 0; } }
+  .dettaglio-aperto { display: none; border-top: 1px solid var(--linee); margin-top: 18px; padding-top: 4px; }
+  .bando.aperto .dettaglio-aperto { display: block; }
+
+  .link-veloci { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; }
+  .link-veloci a { color: var(--giallo-scuro); font-weight: 500; text-decoration: none; }
+  .link-veloci a:hover { text-decoration: underline; }
+  .link-verificato { color: var(--verde); }
+
+  /* versione nuova proposta dal robot (DEC-034) */
+  .proposta {
+    margin-top: 14px; background: var(--bianco);
+    border: 1px solid var(--giallo); border-radius: 14px; padding: 14px 16px;
+  }
+  .proposta h4 { margin: 0 0 2px; font-family: var(--titoli); font-size: 14px; font-weight: 700; }
+  .proposta .quando { font-size: 12px; color: var(--giallo-scuro); font-weight: 500; }
+  .proposta table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  .proposta th { text-align: left; font-weight: 500; color: var(--grigio); padding: 4px 12px 4px 0; vertical-align: top; width: 9rem; }
+  .proposta td { padding: 4px 0; vertical-align: top; overflow-wrap: anywhere; }
+  .proposta .prima { color: var(--grigio); text-decoration: line-through; }
+  .proposta .azioni-proposta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* modulo di modifica */
+  .modulo .griglia { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .modulo .griglia .campo-largo { grid-column: 1 / -1; }
+  .azioni { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .azioni + .messaggio, .modulo .messaggio { margin-top: 8px; }
+
+  /* card fonte */
+  .fonte-completa .ultimo-controllo { font-size: 12px; font-weight: 500; color: var(--giallo-scuro); }
+  .interruttore { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; padding-right: 8px; }
+  .interruttore input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .interruttore .binario { order: -1; width: 40px; height: 24px; border-radius: 999px; background: var(--rosso); position: relative; transition: background 0.15s; flex: none; }
+  .interruttore .binario::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--bianco); transition: transform 0.15s; }
+  .interruttore input:checked + .binario { background: var(--verde); }
+  .interruttore input:checked + .binario::after { transform: translateX(16px); }
+  .interruttore input:focus-visible + .binario { outline: 2px solid var(--giallo); outline-offset: 2px; }
+  .interruttore input:disabled + .binario { opacity: 0.5; }
+  .interruttore .etichetta-stato { color: var(--grigio); min-width: 3.6em; }
+  .interruttore input:checked ~ .etichetta-stato { color: var(--nero); }
+  .stato-fisso { font-size: 13px; color: var(--grigio); }
+
+  /* aggiungi email: si vede a colpo d'occhio */
+  .aggiungi-email { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; vertical-align: middle; }
+  .aggiungi-email .apri {
+    background: var(--rosso-chiaro); color: var(--rosso);
+    font-size: 12px; font-weight: 600; border-radius: 10px; padding: 4px 10px;
+  }
+  .aggiungi-email .apri:hover { text-decoration: underline; }
+  .aggiungi-email .riga { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .aggiungi-email input {
+    width: 13rem; background: var(--bianco); border: 1px solid var(--linee);
+    border-radius: 8px; padding: 4px 8px; font-size: 13px;
+  }
+  .aggiungi-email .salva { background: var(--giallo); color: var(--bianco); font-size: 12px; font-weight: 600; border-radius: 999px; padding: 5px 12px; }
+
+  /* card fonte candidata */
+  .candidato { align-items: start; }
+  .candidato .riassunto {
+    font-size: 14px; color: var(--nero); margin-top: 2px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .candidato .decisione { font-size: 13px; color: var(--giallo-scuro); font-weight: 500; }
+  .nota-scarto { margin-top: 14px; }
+  .nota-scarto label { margin-top: 0; }
+  .battito { font-size: 12px; font-weight: 500; color: var(--giallo-scuro); }
+  .battito:empty { display: none; }
+  .battito .avviso { font-size: 12px; }
+
+  /* pop-up della fonte candidata */
+  #popup-candidato {
+    background: var(--crema); color: var(--nero);
+    border: none; border-radius: 20px; padding: 0;
+    width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+    box-shadow: 0 20px 60px rgba(37,33,20,0.25);
+  }
+  #popup-candidato::backdrop { background: rgba(37,33,20,0.45); }
+  #popup-candidato .chiudi {
+    position: absolute; top: 14px; right: 14px; z-index: 1;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--beige); color: var(--nero); font-size: 20px; line-height: 1;
+  }
+  #popup-candidato .chiudi:hover { background: var(--linee); }
+  #popup-candidato .candidato { border-radius: 0; background: var(--crema); padding: 28px; grid-template-columns: 1fr; }
+  #popup-candidato .candidato .testi { padding-right: 36px; }
+  #popup-candidato .candidato .titolo { font-size: 20px; }
+  #popup-candidato .azioni-card { margin-top: 18px; }
+  .resoconto { font-size: 15px; line-height: 1.55; margin-top: 10px; }
+  .resoconto.vuoto { color: var(--grigio); font-style: italic; }
+  .etichetta { font-size: 11px; font-weight: 600; color: var(--grigio); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 14px; }
+  .motivo { font-size: 14px; }
 
   /* ---- login ---- */
-  #login {
-    max-width: 320px;
-    margin: 4rem auto;
-    padding: 1.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-  }
-  #login h2 { margin-top: 0; font-size: 1.1rem; }
-  #login button {
-    margin-top: 1rem;
-    width: 100%;
-    background: var(--accent);
-    color: #1a1a1a;
-    font-weight: 600;
-    padding: 0.6rem;
-  }
-  #login-errore {
-    color: var(--accent-danger);
-    font-size: 0.85rem;
-    margin-top: 0.6rem;
-    min-height: 1.2em;
-  }
+  #login main { max-width: 420px; }
+  .scheda-login { background: var(--beige); border-radius: 20px; padding: 32px; }
+  .scheda-login h1 { font-family: var(--titoli); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; margin: 0; }
+  .scheda-login p { margin: 4px 0 8px; color: var(--giallo-scuro); font-weight: 500; font-size: 15px; }
+  #login-bottone { width: 100%; margin-top: 20px; padding: 12px 18px; font-size: 14px; }
+  #login-errore { color: var(--rosso); font-size: 13px; margin-top: 10px; min-height: 1.2em; }
 
-  /* ---- elenco ---- */
-  .filtri {
-    display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0;
-    flex-wrap: wrap;
+  /* ---- telefono ---- */
+  @media (max-width: 720px) {
+    .testata { height: auto; min-height: 64px; padding: 14px 16px; }
+    .testata .marchio svg { width: 81px; height: 28px; }
+    .testata .marchio { gap: 10px; }
+    .testata .nome-pannello { font-size: 13px; }
+    .testata #utente-corrente { display: none; }
+    main { padding: 32px 16px 48px; gap: 24px; }
+    .su, .giu { gap: 18px; }
+    .intestazione h1 { font-size: 24px; }
+    .intestazione p { font-size: 14px; }
+    .riga-ricerca select { flex: 1 1 auto; }
+    .riga-ricerca .filtro { flex: 1 1 auto; }
+    .card { padding: 18px; grid-template-columns: minmax(0, 1fr); row-gap: 14px; }
+    .bando { grid-template-columns: 56px minmax(0, 1fr); column-gap: 14px; }
+    .bando .scadenza-box { width: 56px; height: 56px; align-self: start; }
+    .bando .scadenza-box .giorno { font-size: 22px; }
+    .bando .azioni-card { grid-column: 1 / -1; }
+    .azioni-card { flex-wrap: wrap; }
+    .fonte-completa .azioni-card { justify-content: space-between; }
+    .modulo .griglia { grid-template-columns: 1fr; }
+    .scheda-login { padding: 24px; }
   }
-  .filtri button {
-    background: var(--card-bg);
-    color: var(--muted);
-    border: 1px solid var(--line);
+  @media (max-width: 400px) {
+    .testata .separatore, .testata .nome-pannello { display: none; }
   }
-  .filtri button.attivo {
-    background: var(--accent);
-    color: #1a1a1a;
-    border-color: var(--accent);
-  }
-  ul.elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
-  .bando {
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-  }
-  .bando .riga-sommario {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-  }
-  .bando .riga-sommario .titolo {
-    font-weight: 600;
-  }
-  .bando .riga-sommario .titolo .ente {
-    font-weight: 400;
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-left: 0.5rem;
-  }
-  .bando .riga-sommario .titolo .scadenza {
-    display: block;
-    font-weight: 400;
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin-top: 0.2rem;
-  }
-  .avviso-incompleto {
-    margin-top: 0.5rem;
-    font-size: 0.82rem;
-    color: var(--accent);
-  }
-  .badge {
-    font-size: 0.72rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .badge.pubblicato { background: rgba(79,157,110,0.2); color: var(--ok); }
-  .badge.bozza { background: rgba(217,138,61,0.2); color: var(--accent); }
-  .badge.proposta { background: rgba(90,140,220,0.22); color: #8fb4ee; }
-  .badge.da_valutare { background: rgba(217,138,61,0.2); color: var(--accent); }
-  .badge.approvato { background: rgba(79,157,110,0.2); color: var(--ok); }
-  .badge.scartato { background: rgba(192,80,63,0.2); color: var(--accent-danger); }
-
-  /* ---- versione nuova proposta dal robot (DEC-034) ---- */
-  .proposta {
-    margin-top: 0.7rem;
-    border: 1px solid rgba(90,140,220,0.45);
-    border-radius: 6px;
-    background: rgba(90,140,220,0.07);
-    padding: 0.7rem 0.8rem;
-  }
-  .proposta h4 {
-    margin: 0 0 0.15rem;
-    font-size: 0.86rem;
-    color: #8fb4ee;
-  }
-  .proposta .quando { font-size: 0.76rem; color: var(--muted); }
-  .proposta table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.82rem; }
-  .proposta th {
-    text-align: left;
-    font-weight: 500;
-    color: var(--muted);
-    padding: 0.25rem 0.6rem 0.25rem 0;
-    vertical-align: top;
-    width: 9rem;
-  }
-  .proposta td { padding: 0.25rem 0; vertical-align: top; }
-  .proposta .prima { color: var(--muted); text-decoration: line-through; }
-  .proposta .dopo { color: var(--fg); }
-  .proposta .azioni-proposta { margin-top: 0.7rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .proposta button { font-size: 0.82rem; padding: 0.35rem 0.7rem; border: 0; border-radius: 5px; cursor: pointer; }
-  .proposta .sostituisci { background: #4a72b8; color: #fff; font-weight: 600; }
-  .proposta .tieni { background: #3a3b40; color: var(--fg); }
-  .link-veloci { margin-top: 0.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
-  .link-veloci a { color: var(--accent); font-size: 0.82rem; text-decoration: none; }
-  .link-veloci a:hover { text-decoration: underline; }
-  .link-verificato { color: var(--ok); font-size: 0.82rem; }
-
-  .modulo { display: none; margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 1rem; }
-  .bando.aperto .modulo { display: block; }
-  .modulo .griglia {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 1rem;
-  }
-  .modulo .griglia .campo-largo { grid-column: 1 / -1; }
-  .azioni {
-    margin-top: 1.2rem;
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
-  .azioni .salva { background: #3a3b40; color: var(--fg); }
-  .azioni .approva { background: var(--ok); color: #0d1a12; font-weight: 600; }
-  .azioni .annulla-pub { background: #3a3b40; color: var(--fg); }
-  .azioni .scarta { background: var(--accent-danger); color: #fff; }
-  .messaggio { font-size: 0.82rem; margin-top: 0.5rem; min-height: 1.2em; }
-  .messaggio.ok { color: var(--ok); }
-  .messaggio.errore { color: var(--accent-danger); }
-
-  #stato-elenco { color: var(--muted); padding: 2rem 0; text-align: center; }
-  #logout { background: transparent; color: var(--muted); border: 1px solid var(--line); }
-
-  /* ---- sezioni (Bandi / Fonti da rivedere) ---- */
-  .sezioni {
-    display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0 0;
-  }
-  .sezioni button {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--line);
-  }
-  .sezioni button.attivo {
-    background: var(--card-bg);
-    color: var(--fg);
-    border-color: var(--accent);
-  }
-
-  .sotto-sezioni {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0.8rem 0 0;
-  }
-  .sotto-sezioni button {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--line);
-    font-size: 0.85rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  .sotto-sezioni button.attivo {
-    background: var(--card-bg);
-    color: var(--fg);
-    border-color: var(--accent);
-  }
-
-  /* ---- tutte le fonti ---- */
-  .filtri-fonti {
-    display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0;
-    flex-wrap: wrap;
-  }
-  .filtri-fonti input,
-  .filtri-fonti select {
-    width: auto;
-    font-size: 0.85rem;
-    padding: 0.4rem 0.6rem;
-  }
-  .filtri-fonti input[type="search"] { flex: 1 1 200px; }
-  .fonte-completa { background: var(--card-bg); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; }
-  .fonte-completa .riga-sommario { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
-  .fonte-completa .titolo { font-weight: 600; }
-  .fonte-completa .dettagli { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
-  .fonte-completa .messaggio:empty { display: none; }
-  .interruttore { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); cursor: pointer; }
-  .interruttore input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .interruttore .binario { width: 2.2rem; height: 1.2rem; border-radius: 999px; background: var(--line); position: relative; transition: background 0.15s; flex: none; }
-  .interruttore .binario::after { content: ""; position: absolute; top: 0.15rem; left: 0.15rem; width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--fg); transition: transform 0.15s; }
-  .interruttore input:checked + .binario { background: var(--ok); }
-  .interruttore input:checked + .binario::after { transform: translateX(1rem); }
-  .interruttore input:focus-visible + .binario { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .interruttore input:disabled + .binario { opacity: 0.5; }
-
-  /* ---- fonti da rivedere ---- */
-  .fonte { background: var(--card-bg); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; }
-  .fonte .titolo { font-weight: 600; }
-  .fonte .griglia { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; margin-top: 0.5rem; }
-  .fonte .griglia .campo-largo { grid-column: 1 / -1; }
-
-  /* ---- fonti candidate ---- */
-  .avviso-silenzio {
-    background: rgba(192,80,63,0.12);
-    border: 1px solid rgba(192,80,63,0.4);
-    color: var(--accent-danger);
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
-    font-size: 0.85rem;
-  }
-  .candidato { background: var(--card-bg); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; }
-  .candidato .riga-sommario { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
-  .candidato .titolo { font-weight: 600; }
-  .candidato .regione { font-weight: 400; color: var(--muted); font-size: 0.82rem; margin-left: 0.5rem; }
-  .candidato .trovata { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
-  .candidato .motivo { margin-top: 0.5rem; font-size: 0.88rem; }
-  .candidato .link-veloci { margin-top: 0.4rem; }
-  .candidato .azioni .approva { background: var(--ok); color: #0d1a12; font-weight: 600; }
-  .candidato .azioni .scarta { background: var(--accent-danger); color: #fff; }
-  .candidato .azioni .annulla-scarto { background: #3a3b40; color: var(--fg); }
-  .candidato .nota-scarto { margin-top: 0.6rem; }
-  .aggiungi-email { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.82rem; }
-  .aggiungi-email .apri { background: rgba(192,80,63,0.12); border: 1px dashed var(--accent-danger); border-radius: 999px; padding: 0.05rem 0.6rem; margin: 0; color: var(--accent-danger); cursor: pointer; font: inherit; font-weight: 600; }
-  .aggiungi-email .apri:hover { background: rgba(192,80,63,0.22); }
-  .aggiungi-email .riga { display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
-  .aggiungi-email .riga[hidden] { display: none; }
-  .aggiungi-email input { width: 11rem; padding: 0.1rem 0.4rem; font-size: 0.78rem; margin: 0; border-radius: 4px; }
-  .aggiungi-email .salva { padding: 0.1rem 0.5rem; font-size: 0.78rem; margin: 0; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; }
-  .aggiungi-email .messaggio { margin: 0; font-size: 0.78rem; }
-  .candidato .decisione { margin-top: 0.5rem; font-size: 0.82rem; color: var(--muted); }
-  .candidato .apri-popup { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
-  .candidato .apri-popup:hover { color: var(--accent); text-decoration-color: var(--accent); }
-  .candidato .resoconto { margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.5; }
-  .candidato .resoconto.vuoto { color: var(--muted); font-style: italic; }
-  .candidato .etichetta { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.9rem; }
-  #popup-candidato { background: var(--card-bg); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); }
-  #popup-candidato::backdrop { background: rgba(0,0,0,0.6); }
-  #popup-candidato .candidato { border: none; padding: 1.4rem 1.4rem 1.2rem; }
-  #popup-candidato .chiudi { position: absolute; top: 0.5rem; right: 0.6rem; background: none; border: none; color: var(--muted); font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 0.3rem; }
-  #popup-candidato .chiudi:hover { color: var(--fg); }
-  #popup-candidato .riga-sommario { padding-right: 1.8rem; }
 </style>
 </head>
 <body>
 
 <div id="login">
-  <h2>Revisione bandi</h2>
-  <label for="login-email">Email</label>
-  <input id="login-email" type="email" autocomplete="username">
-  <label for="login-password">Password</label>
-  <input id="login-password" type="password" autocomplete="current-password">
-  <button id="login-bottone">Entra</button>
-  <div id="login-errore"></div>
-</div>
-
-<div id="app" hidden>
-  <header>
-    <h1>Revisione bandi</h1>
-    <div>
-      <span class="sotto" id="utente-corrente"></span>
-      <button id="logout">Esci</button>
+  <header class="testata">
+    <div class="marchio">
+      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="#FDFDFD"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="#FDFDFD"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="#FDFDFD"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="#FDFDFD"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="#FDFDFD"/></svg>
+      <span class="separatore"></span>
+      <span class="nome-pannello">Admin · Revisione bandi</span>
     </div>
   </header>
   <main>
-    <nav class="sezioni">
-      <button data-zona="sources" class="attivo">Fonti</button>
-      <button data-zona="opencall">Opencall</button>
-    </nav>
+    <div class="scheda-login">
+      <h1>Accedi</h1>
+      <p>Pannello di Vedetta</p>
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" autocomplete="username">
+      <label for="login-password">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password">
+      <button id="login-bottone" class="btn-primario">Entra</button>
+      <div id="login-errore"></div>
+    </div>
+  </main>
+</div>
 
-    <div id="zona-sources">
-      <nav class="sotto-sezioni">
+<div id="app" hidden>
+  <header class="testata">
+    <div class="marchio">
+      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="#FDFDFD"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="#FDFDFD"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="#FDFDFD"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="#FDFDFD"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="#FDFDFD"/></svg>
+      <span class="separatore"></span>
+      <span class="nome-pannello">Admin · Revisione bandi</span>
+    </div>
+    <div class="utente">
+      <span id="utente-corrente"></span>
+      <button id="logout" class="btn-secondario">Esci</button>
+    </div>
+  </header>
+  <main>
+    <div class="su">
+      <div class="intestazione">
+        <h1 id="titolo-pagina">Le fonti che seguiamo</h1>
+        <p id="sottotitolo-pagina"></p>
+      </div>
+      <nav class="sezioni">
+        <button data-zona="sources" class="attivo">Fonti</button>
+        <button data-zona="opencall">Bandi</button>
+      </nav>
+      <nav class="pillole" id="pillole-fonti">
         <button data-sub-sources="tutte" class="attivo">Tutte le fonti</button>
         <button data-sub-sources="candidate">Fonti candidate</button>
       </nav>
+      <nav class="pillole" id="pillole-bandi" hidden>
+        <button data-filtro="da-rivedere" class="attivo">Da rivedere</button>
+        <button data-filtro="proposte">Versione nuova</button>
+        <button data-filtro="pubblicati">Pubblicati</button>
+        <button data-filtro="tutti">Tutti</button>
+      </nav>
+    </div>
 
-      <div id="vista-tutte-fonti">
-        <div class="filtri-fonti">
-          <input type="search" id="fonti-cerca" placeholder="Cerca per nome o sito…">
-          <select id="fonti-filtro-stato">
+    <div id="zona-sources">
+      <div id="vista-tutte-fonti" class="giu">
+        <div class="riga-ricerca">
+          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="fonti-cerca" placeholder="Cerca per nome o sito" aria-label="Cerca per nome o sito"></label>
+          <select id="fonti-filtro-stato" aria-label="Stato">
             <option value="tutti">Tutti gli stati</option>
           </select>
-          <select id="fonti-filtro-tipo">
+          <select id="fonti-filtro-tipo" aria-label="Tipo">
             <option value="tutti">Tutti i tipi</option>
           </select>
-          <select id="fonti-filtro-paese">
-            <option value="tutti">Tutti i paesi</option>
+          <select id="fonti-filtro-paese" aria-label="Paese">
+            <option value="tutti">Tutti i Paesi</option>
           </select>
         </div>
-        <div id="stato-tutte-fonti"></div>
+        <div id="stato-tutte-fonti" class="stato-elenco"></div>
         <ul id="elenco-tutte-fonti" class="elenco"></ul>
       </div>
 
-      <div id="vista-candidate" hidden>
-      <p class="sotto" style="margin: 1rem 0;">Organizzazioni nuove trovate dall'agente di scoperta fonti (boheme-vedetta, subagente 1), non ancora monitorate. Approva quelle da tenere d'occhio, scarta le altre — la decisione resta tua. Una fonte approvata entra subito in "Tutte le fonti" come attiva, con la tua nota.</p>
-      <div id="battito-candidate" class="sotto" style="margin-bottom: 1rem;"></div>
-      <div class="filtri">
-        <button data-filtro-candidato="da_valutare" class="attivo">Da valutare</button>
-        <button data-filtro-candidato="approvato">Approvate</button>
-        <button data-filtro-candidato="scartato">Scartate</button>
-      </div>
-      <div id="stato-candidate"></div>
-      <ul id="elenco-candidate" class="elenco"></ul>
-      <dialog id="popup-candidato" aria-label="Resoconto della fonte candidata">
-        <button class="chiudi" type="button" aria-label="Chiudi">×</button>
-        <div id="popup-contenuto"></div>
-      </dialog>
+      <div id="vista-candidate" class="giu" hidden>
+        <div class="riga-ricerca">
+          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="candidate-cerca" placeholder="Cerca per nome o sito" aria-label="Cerca per nome o sito"></label>
+          <button class="filtro attivo" data-filtro-candidato="da_valutare">Da valutare</button>
+          <button class="filtro" data-filtro-candidato="approvato">Approvate</button>
+          <button class="filtro" data-filtro-candidato="scartato">Scartate</button>
+        </div>
+        <div id="battito-candidate" class="battito"></div>
+        <div id="stato-candidate" class="stato-elenco"></div>
+        <ul id="elenco-candidate" class="elenco"></ul>
+        <dialog id="popup-candidato" aria-label="Resoconto della fonte candidata">
+          <button class="chiudi" type="button" aria-label="Chiudi">×</button>
+          <div id="popup-contenuto"></div>
+        </dialog>
       </div>
     </div>
 
     <div id="zona-opencall" hidden>
-      <div id="vista-bandi">
-        <div class="filtri">
-          <button data-filtro="da-rivedere" class="attivo">Da rivedere</button>
-          <button data-filtro="proposte">Versione nuova</button>
-          <button data-filtro="pubblicati">Pubblicati</button>
-          <button data-filtro="tutti">Tutti</button>
+      <div id="vista-bandi" class="giu">
+        <div class="riga-ricerca">
+          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="bandi-cerca" placeholder="Cerca un bando, un ente, una città" aria-label="Cerca un bando, un ente, una città"></label>
         </div>
-        <div id="stato-elenco"></div>
+        <div id="stato-elenco" class="stato-elenco"></div>
         <ul id="elenco" class="elenco"></ul>
       </div>
     </div>
@@ -464,7 +497,17 @@ const fontiCerca = document.getElementById("fonti-cerca");
 const fontiFiltroStato = document.getElementById("fonti-filtro-stato");
 const fontiFiltroTipo = document.getElementById("fonti-filtro-tipo");
 const fontiFiltroPaese = document.getElementById("fonti-filtro-paese");
+const bandiCerca = document.getElementById("bandi-cerca");
+const candidateCerca = document.getElementById("candidate-cerca");
+const titoloPagina = document.getElementById("titolo-pagina");
+const sottotitoloPagina = document.getElementById("sottotitolo-pagina");
+const pilloleFonti = document.getElementById("pillole-fonti");
+const pilloleBandi = document.getElementById("pillole-bandi");
 
+let zonaAttuale = "sources";
+let subSourcesAttuale = "tutte";
+let bandiCaricati = false;
+let ultimoControlloFonte = {};
 let filtroAttuale = "da-rivedere";
 let bandi = [];
 let filtroCandidatoAttuale = "da_valutare";
@@ -477,6 +520,7 @@ function mostraApp(sessione) {
   loginEl.hidden = true;
   appEl.hidden = false;
   utenteCorrente.textContent = sessione.user.email;
+  aggiornaIntestazione();
   caricaBandi();
   caricaTutteFonti();
 }
@@ -502,9 +546,9 @@ supabase.auth.onAuthStateChange((_evento, sessione) => {
   else mostraLogin();
 });
 
-document.querySelectorAll(".filtri button").forEach((bottone) => {
+document.querySelectorAll("[data-filtro]").forEach((bottone) => {
   bottone.addEventListener("click", () => {
-    document.querySelectorAll(".filtri button").forEach((b) => b.classList.remove("attivo"));
+    document.querySelectorAll("[data-filtro]").forEach((b) => b.classList.remove("attivo"));
     bottone.classList.add("attivo");
     filtroAttuale = bottone.dataset.filtro;
     disegnaElenco();
@@ -515,9 +559,12 @@ document.querySelectorAll("[data-zona]").forEach((bottone) => {
   bottone.addEventListener("click", () => {
     document.querySelectorAll("[data-zona]").forEach((b) => b.classList.remove("attivo"));
     bottone.classList.add("attivo");
-    const zona = bottone.dataset.zona;
-    zonaSources.hidden = zona !== "sources";
-    zonaOpencall.hidden = zona !== "opencall";
+    zonaAttuale = bottone.dataset.zona;
+    zonaSources.hidden = zonaAttuale !== "sources";
+    pilloleFonti.hidden = zonaAttuale !== "sources";
+    zonaOpencall.hidden = zonaAttuale !== "opencall";
+    pilloleBandi.hidden = zonaAttuale !== "opencall";
+    aggiornaIntestazione();
   });
 });
 
@@ -526,16 +573,60 @@ document.querySelectorAll("[data-sub-sources]").forEach((bottone) => {
     document.querySelectorAll("[data-sub-sources]").forEach((b) => b.classList.remove("attivo"));
     bottone.classList.add("attivo");
     const sub = bottone.dataset.subSources;
+    subSourcesAttuale = sub;
     vistaTutteFonti.hidden = sub !== "tutte";
     vistaCandidate.hidden = sub !== "candidate";
     if (sub === "candidate" && !candidatiCaricati) caricaCandidate();
     if (sub === "tutte" && !tutteFontiCaricate) caricaTutteFonti();
+    aggiornaIntestazione();
   });
 });
 
 [fontiCerca, fontiFiltroStato, fontiFiltroTipo, fontiFiltroPaese].forEach((el) => {
   el.addEventListener("input", disegnaTutteFonti);
 });
+bandiCerca.addEventListener("input", disegnaElenco);
+candidateCerca.addEventListener("input", disegnaCandidate);
+
+// Titolo e sottotitolo cambiano con la vista (design A · Crema).
+function aggiornaIntestazione() {
+  let titolo, sotto;
+  if (zonaAttuale === "opencall") {
+    titolo = "Esplora i bandi";
+    if (bandiCaricati) {
+      const daRivedere = bandi.filter((b) => !b.published).length;
+      const nuove = bandi.filter((b) => b.pending_update).length;
+      sotto = `${daRivedere} da rivedere · ${nuove} con una versione nuova`;
+    }
+  } else if (subSourcesAttuale === "candidate") {
+    titolo = "Fonti candidate";
+    sotto = "Trovate dallo Scout, da approvare o scartare";
+  } else {
+    titolo = "Le fonti che seguiamo";
+    if (tutteFontiCaricate) {
+      const attive = tutteLeFonti.filter((f) => f.status === "active").length;
+      const pausa = tutteLeFonti.filter((f) => f.status === "paused").length;
+      sotto = `${tutteLeFonti.length} fonti · ${attive} attive · ${pausa} in pausa`;
+    }
+  }
+  titoloPagina.textContent = titolo;
+  sottotitoloPagina.textContent = sotto || "";
+}
+
+// "sito.it" da "https://www.sito.it/percorso"
+function dominio(url) {
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch (_) {
+    return String(url).replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "");
+  }
+}
+
+// Riga "a · b · c": accetta pezzi di HTML già sicuri, salta quelli vuoti.
+function rigaPunti(pezzi) {
+  return pezzi.filter(Boolean).join('<span class="punto">·</span>');
+}
 
 document.querySelectorAll("[data-filtro-candidato]").forEach((bottone) => {
   bottone.addEventListener("click", () => {
@@ -559,6 +650,7 @@ async function caricaBandi() {
     return;
   }
   bandi = data;
+  bandiCaricati = true;
   disegnaElenco();
 }
 
@@ -602,39 +694,168 @@ function campiMancanti(bando) {
     .map(([, etichetta]) => etichetta);
 }
 
+function cercaBando(bando) {
+  const testo = bandiCerca.value.trim().toLowerCase();
+  if (!testo) return true;
+  return [bando.title, bando.organization_name, bando.location]
+    .some((v) => v && String(v).toLowerCase().includes(testo));
+}
+
 function disegnaElenco() {
-  const visibili = bandi.filter(corrisponde);
+  aggiornaIntestazione();
+  const visibili = bandi.filter((b) => corrisponde(b) && cercaBando(b));
   statoElenco.textContent = visibili.length ? "" : "Nessun bando in questa vista.";
   elencoEl.innerHTML = "";
   visibili.forEach((bando) => elencoEl.appendChild(creaRigaBando(bando)));
 }
 
+// Arti ricavate dal testo libero "disciplines" (nessuna colonna nuova nel
+// database). Ordine e colori dal design: SPECIFICA.md, sezione 6.
+const ARTI = [
+  ["Musica", "#EC6B13", /music|musica|sound|suono|compos/],
+  ["Fotografia", "#4E4FAE", /photo|fotogra/],
+  ["Teatro", "#EE86B4", /theat|teatr|perform|danc|danza/],
+  ["Cinema", "#B65DAF", /film|cinem|video|movie|audiovis/],
+  ["Pittura", "#7DBE3C", /paint|pittur|visual art|arti visive|fine art/],
+  ["Illustrazione", "#58C3E0", /illustra|comic|fumett/],
+  ["Scrittura", "#C49CF0", /literat|letterat|writ|scrittur|poe|narrat/],
+  ["Architettura", "#2F7A35", /architet/],
+  ["Street Art", "#5ED3AE", /street art|mural/],
+  ["Scultura", "#6BDDD3", /sculpt|scult/],
+  ["Moda", "#F7C0C8", /fashion|moda\b/],
+  ["Stand Up Comedy", "#EF5A7A", /comedy|stand.?up|comico/],
+];
+
+function artiDelBando(bando) {
+  const testo = String(bando.disciplines || "").toLowerCase();
+  if (!testo) return [];
+  return ARTI.filter(([, , regola]) => regola.test(testo));
+}
+
+const MESI_BREVI = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+
+function quadratoScadenza(bando) {
+  const box = document.createElement("div");
+  box.className = "scadenza-box";
+  const d = bando.deadline ? new Date(bando.deadline) : null;
+  if (!d || isNaN(d.getTime())) {
+    box.innerHTML = `<span class="giorno">?</span>`;
+    box.title = "Nessuna scadenza indicata";
+    return box;
+  }
+  if (statoDaScadenza(bando.deadline) === "expired") box.classList.add("scaduto");
+  box.title = formattaScadenza(bando.deadline);
+  box.innerHTML = `<span class="mese">${MESI_BREVI[d.getMonth()]}</span><span class="giorno">${String(d.getDate()).padStart(2, "0")}</span>`;
+  return box;
+}
+
+function accorcia(testo, max) {
+  const t = String(testo).replace(/\s+/g, " ").trim();
+  return t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
+}
+
 function creaRigaBando(bando) {
   const li = document.createElement("li");
-  li.className = "bando";
+  li.className = "card bando";
 
-  const sommario = document.createElement("div");
-  sommario.className = "riga-sommario";
-  sommario.innerHTML = `
-    <div class="titolo">${escapeHtml(bando.title || "Senza titolo")}
-      ${bando.organization_name ? `<span class="ente">${escapeHtml(bando.organization_name)}</span>` : ""}
-      <span class="scadenza">${escapeHtml(formattaScadenza(bando.deadline))}</span>
-    </div>
-    <span class="badge ${bando.published ? "pubblicato" : "bozza"}">${bando.published ? "Pubblicato" : "Da rivedere"}</span>
-    ${bando.pending_update ? `<span class="badge proposta">Versione nuova</span>` : ""}
-  `;
-  sommario.addEventListener("click", () => li.classList.toggle("aperto"));
-  li.appendChild(sommario);
+  li.appendChild(quadratoScadenza(bando));
 
+  const testi = document.createElement("div");
+  testi.className = "testi";
+  const titolo = document.createElement("button");
+  titolo.type = "button";
+  titolo.className = "titolo";
+  titolo.title = "Apri dettagli e modifica";
+  titolo.textContent = bando.title || "Senza titolo";
+  titolo.addEventListener("click", () => li.classList.toggle("aperto"));
+  testi.appendChild(titolo);
+
+  const dettagli = document.createElement("div");
+  dettagli.className = "dettagli";
+  dettagli.innerHTML = rigaPunti([
+    bando.organization_name ? escapeHtml(bando.organization_name) : null,
+    bando.location ? escapeHtml(accorcia(bando.location, 50)) : "luogo da verificare",
+    bando.prizes ? escapeHtml(accorcia(bando.prizes, 60)) : null,
+  ]);
+  testi.appendChild(dettagli);
+
+  const tag = document.createElement("div");
+  tag.className = "riga-tag";
+  artiDelBando(bando).forEach(([nome, colore]) => {
+    const t = document.createElement("span");
+    t.className = "tag";
+    t.style.background = colore;
+    t.textContent = nome;
+    tag.appendChild(t);
+  });
+  if (bando.published) {
+    tag.insertAdjacentHTML("beforeend", `<span class="tag pubblicato">Pubblicato</span>`);
+  }
+  if (bando.pending_update) {
+    const t = document.createElement("button");
+    t.type = "button";
+    t.className = "tag versione-nuova";
+    t.textContent = "Versione nuova";
+    t.title = "Vedi la versione nuova proposta dal robot";
+    t.addEventListener("click", () => li.classList.add("aperto"));
+    tag.appendChild(t);
+  }
   const mancanti = campiMancanti(bando);
   if (mancanti.length) {
-    const avviso = document.createElement("div");
-    avviso.className = "avviso-incompleto";
-    avviso.textContent = "Mancano: " + mancanti.join(", ");
-    li.appendChild(avviso);
+    const avviso = document.createElement("span");
+    avviso.className = "avviso";
+    avviso.textContent = (mancanti.length === 1 ? "Manca: " : "Mancano: ") + mancanti.join(", ");
+    tag.appendChild(avviso);
   }
+  testi.appendChild(tag);
+  li.appendChild(testi);
 
-  if (bando.pending_update) li.appendChild(creaProposta(bando));
+  const messaggio = document.createElement("div");
+  messaggio.className = "messaggio pieno";
+
+  const azioni = document.createElement("div");
+  azioni.className = "azioni-card";
+  const bottonePubblica = document.createElement("button");
+  bottonePubblica.type = "button";
+  if (bando.published) {
+    bottonePubblica.className = "btn-secondario";
+    bottonePubblica.textContent = "Togli dal sito";
+  } else {
+    bottonePubblica.className = "btn-primario";
+    bottonePubblica.textContent = "Pubblica";
+  }
+  bottonePubblica.addEventListener("click", async () => {
+    const patch = bando.published ? { published: false } : { verified: true, published: true };
+    bottonePubblica.disabled = true;
+    messaggio.className = "messaggio pieno";
+    messaggio.textContent = "Salvo…";
+    const { error } = await supabase.from("open_calls").update(patch).eq("id", bando.id);
+    bottonePubblica.disabled = false;
+    if (error) {
+      messaggio.className = "messaggio pieno errore";
+      messaggio.textContent = "Errore: " + error.message;
+      return;
+    }
+    Object.assign(bando, patch);
+    disegnaElenco();
+  });
+  azioni.appendChild(bottonePubblica);
+
+  const bottoneScarta = document.createElement("button");
+  bottoneScarta.type = "button";
+  bottoneScarta.className = "btn-link";
+  bottoneScarta.textContent = "Scarta";
+  bottoneScarta.addEventListener("click", () => scartaBando(bando, messaggio));
+  azioni.appendChild(bottoneScarta);
+  li.appendChild(azioni);
+
+  li.appendChild(messaggio);
+
+  // Dettagli che si aprono cliccando il titolo: proposta del robot,
+  // link e modulo di modifica (non disegnati nel Figma, stesso stile).
+  const aperto = document.createElement("div");
+  aperto.className = "dettaglio-aperto pieno";
+  if (bando.pending_update) aperto.appendChild(creaProposta(bando));
 
   const linkVeloci = document.createElement("div");
   linkVeloci.className = "link-veloci";
@@ -644,10 +865,23 @@ function creaRigaBando(bando) {
     const data = new Date(bando.link_verified_at).toLocaleDateString("it-IT");
     linkVeloci.innerHTML += `<span class="link-verificato">Link controllato il ${data}</span>`;
   }
-  if (linkVeloci.innerHTML) li.appendChild(linkVeloci);
+  if (linkVeloci.innerHTML) aperto.appendChild(linkVeloci);
 
-  li.appendChild(creaModulo(bando));
+  aperto.appendChild(creaModulo(bando));
+  li.appendChild(aperto);
   return li;
+}
+
+async function scartaBando(bando, messaggio) {
+  if (!confirm("Eliminare definitivamente questo bando?")) return;
+  const { error } = await supabase.from("open_calls").delete().eq("id", bando.id);
+  if (error) {
+    messaggio.className = messaggio.className.replace(/\b(ok|errore)\b/g, "").trim() + " errore";
+    messaggio.textContent = "Errore: " + error.message;
+    return;
+  }
+  bandi = bandi.filter((b) => b.id !== bando.id);
+  disegnaElenco();
 }
 
 // ---- versione nuova proposta dal robot (DEC-034) --------------------------
@@ -744,7 +978,7 @@ function creaProposta(bando) {
   azioni.className = "azioni-proposta";
 
   const bottoneSostituisci = document.createElement("button");
-  bottoneSostituisci.className = "sostituisci";
+  bottoneSostituisci.className = "btn-primario";
   bottoneSostituisci.textContent = "Sostituisci con la versione nuova";
   bottoneSostituisci.addEventListener("click", () => {
     // Solo i campi del contenuto: se il bando era gia' pubblicato resta
@@ -761,7 +995,7 @@ function creaProposta(bando) {
   azioni.appendChild(bottoneSostituisci);
 
   const bottoneTieni = document.createElement("button");
-  bottoneTieni.className = "tieni";
+  bottoneTieni.className = "btn-link";
   bottoneTieni.textContent = "Tieni questa, scarta la proposta";
   bottoneTieni.addEventListener("click", () =>
     decidi({ pending_update: null, pending_update_at: null }, "Proposta scartata.")
@@ -830,13 +1064,13 @@ function creaModulo(bando) {
   }
 
   const bottoneSalva = document.createElement("button");
-  bottoneSalva.className = "salva";
+  bottoneSalva.className = "btn-secondario";
   bottoneSalva.textContent = "Salva modifiche";
   bottoneSalva.addEventListener("click", () => salva({}, "Modifiche salvate."));
   azioni.appendChild(bottoneSalva);
 
   const bottoneApprova = document.createElement("button");
-  bottoneApprova.className = "approva";
+  bottoneApprova.className = "btn-primario";
   bottoneApprova.textContent = "Approva e pubblica";
   bottoneApprova.addEventListener("click", () =>
     salva({ verified: true, published: true }, "Pubblicato: ora è visibile sul sito.")
@@ -845,7 +1079,7 @@ function creaModulo(bando) {
 
   if (bando.published) {
     const bottoneAnnulla = document.createElement("button");
-    bottoneAnnulla.className = "annulla-pub";
+    bottoneAnnulla.className = "btn-link";
     bottoneAnnulla.textContent = "Annulla pubblicazione";
     bottoneAnnulla.addEventListener("click", () =>
       salva({ published: false }, "Tolto dal sito pubblico.")
@@ -854,19 +1088,9 @@ function creaModulo(bando) {
   }
 
   const bottoneScarta = document.createElement("button");
-  bottoneScarta.className = "scarta";
+  bottoneScarta.className = "btn-link";
   bottoneScarta.textContent = "Scarta";
-  bottoneScarta.addEventListener("click", async () => {
-    if (!confirm("Eliminare definitivamente questo bando?")) return;
-    const { error } = await supabase.from("open_calls").delete().eq("id", bando.id);
-    if (error) {
-      messaggio.className = "messaggio errore";
-      messaggio.textContent = "Errore: " + error.message;
-      return;
-    }
-    bandi = bandi.filter((b) => b.id !== bando.id);
-    disegnaElenco();
-  });
+  bottoneScarta.addEventListener("click", () => scartaBando(bando, messaggio));
   azioni.appendChild(bottoneScarta);
 
   div.appendChild(azioni);
@@ -975,6 +1199,22 @@ function completaEtichettePaese(codici) {
   });
 }
 
+// I menu a tendina si stringono intorno all'opzione scelta (design:
+// freccia a 8px dal testo), invece di prendere la larghezza della più lunga.
+const misuraTesto = document.createElement("canvas").getContext("2d");
+function adattaSelect(select) {
+  const stile = getComputedStyle(select);
+  misuraTesto.font = `${stile.fontWeight} ${stile.fontSize} ${stile.fontFamily}`;
+  const testo = select.options[select.selectedIndex]?.text || "";
+  const larghezza = Math.ceil(misuraTesto.measureText(testo).width);
+  select.style.width = (larghezza + 18 + 38 + 2) + "px";
+}
+[fontiFiltroStato, fontiFiltroTipo, fontiFiltroPaese].forEach((s) => {
+  s.addEventListener("change", () => adattaSelect(s));
+});
+if (document.fonts) document.fonts.ready.then(() =>
+  [fontiFiltroStato, fontiFiltroTipo, fontiFiltroPaese].forEach(adattaSelect));
+
 function popolaFiltro(select, valori, etichette) {
   const attuale = select.value;
   const distinti = [...new Set(valori.filter(Boolean))].sort((a, b) =>
@@ -990,16 +1230,29 @@ function popolaFiltro(select, valori, etichette) {
     select.appendChild(opt);
   });
   if ([...select.options].some((o) => o.value === attuale)) select.value = attuale;
+  adattaSelect(select);
 }
 
 async function caricaTutteFonti() {
   statoTutteFonti.textContent = "Carico le fonti…";
   elencoTutteFontiEl.innerHTML = "";
-  const { data, error } = await supabase.from("sources").select("*").order("organization_name");
+  const [fontiRisposta, pagineRisposta] = await Promise.all([
+    supabase.from("sources").select("*").order("organization_name"),
+    // "Ultimo controllo": quando il Motore ha letto le pagine della fonte.
+    // Se il database non concede la lettura, la riga semplicemente non compare.
+    supabase.from("crawler_pages").select("source_id, crawled_at"),
+  ]);
+  const { data, error } = fontiRisposta;
   if (error) {
     statoTutteFonti.textContent = "Non riesco a leggere le fonti: " + error.message;
     return;
   }
+  ultimoControlloFonte = {};
+  (pagineRisposta.data || []).forEach((p) => {
+    if (!p.source_id || !p.crawled_at) return;
+    const prima = ultimoControlloFonte[p.source_id];
+    if (!prima || p.crawled_at > prima) ultimoControlloFonte[p.source_id] = p.crawled_at;
+  });
   tutteFontiCaricate = true;
   tutteLeFonti = data;
   popolaFiltro(fontiFiltroStato, data.map((f) => f.status), ETICHETTA_STATO_FONTE);
@@ -1010,6 +1263,7 @@ async function caricaTutteFonti() {
 }
 
 function disegnaTutteFonti() {
+  aggiornaIntestazione();
   const testo = fontiCerca.value.trim().toLowerCase();
   const stato = fontiFiltroStato.value;
   const tipo = fontiFiltroTipo.value;
@@ -1026,70 +1280,171 @@ function disegnaTutteFonti() {
     return true;
   });
 
-  statoTutteFonti.textContent = `${visibili.length} di ${tutteLeFonti.length} fonti.`;
+  statoTutteFonti.textContent = visibili.length ? "" : "Nessuna fonte con questi filtri.";
   elencoTutteFontiEl.innerHTML = "";
   visibili.forEach((f) => elencoTutteFontiEl.appendChild(creaRigaFonteCompleta(f)));
 }
 
+function quandoControllata(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const oggi = new Date(); oggi.setHours(0, 0, 0, 0);
+  const giorno = new Date(d); giorno.setHours(0, 0, 0, 0);
+  const giorni = Math.round((oggi - giorno) / 86400000);
+  if (giorni <= 0) return "oggi";
+  if (giorni === 1) return "ieri";
+  if (giorni < 30) return `${giorni} giorni fa`;
+  return "il " + d.toLocaleDateString("it-IT");
+}
+
+// Campi della fonte che il pannello può cambiare (permessi nel database:
+// website_url, opportunities_url, contact_email, contact_email_source, notes).
+const CAMPI_FONTE = [
+  ["website_url", "Sito", "url"],
+  ["opportunities_url", "Pagina bandi", "url"],
+  ["contact_email", "Email di contatto", "email"],
+  ["contact_email_source", "Dove è stata trovata la mail (link)", "url"],
+  ["notes", "Note", "textarea"],
+];
+
 function creaRigaFonteCompleta(fonte) {
   const li = document.createElement("li");
-  li.className = "fonte-completa";
+  li.className = "card fonte-completa";
 
-  const dettagli = [
-    fonte.organization_type ? ETICHETTA_TIPO_FONTE[fonte.organization_type] || fonte.organization_type : null,
-    fonte.country ? ETICHETTA_PAESE[fonte.country] || fonte.country.toUpperCase() : null,
-  ].filter(Boolean).join(" · ");
+  const paese = fonte.country ? ETICHETTA_PAESE[fonte.country] || fonte.country.toUpperCase() : null;
+  const tipo = fonte.organization_type ? ETICHETTA_TIPO_FONTE[fonte.organization_type] || fonte.organization_type : null;
+  const dettagli = rigaPunti([
+    fonte.website_url ? `<a href="${attr(fonte.website_url)}" target="_blank" rel="noopener" title="Apri il sito">${escapeHtml(dominio(fonte.website_url))}</a>` : null,
+    fonte.opportunities_url ? `<a href="${attr(fonte.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi</a>` : null,
+    paese ? escapeHtml(paese) : null,
+    tipo ? escapeHtml(tipo) : null,
+    fonte.contact_email ? `<a href="mailto:${attr(fonte.contact_email)}">${escapeHtml(fonte.contact_email)}</a>` : null,
+    fonte.contact_email && fonte.contact_email_source ? `<a href="${attr(fonte.contact_email_source)}" target="_blank" rel="noopener" title="Pagina dove è stata trovata la mail">dove l'ho trovata</a>` : null,
+  ]);
+  const controllo = ultimoControlloFonte[fonte.id];
 
   const modificabile = fonte.status === "active" || fonte.status === "paused";
   const stato = modificabile
     ? `<label class="interruttore" title="Il Motore legge solo le fonti attive">
-         <span class="etichetta-stato">${ETICHETTA_STATO_FONTE[fonte.status]}</span>
          <input type="checkbox" ${fonte.status === "active" ? "checked" : ""}>
          <span class="binario"></span>
+         <span class="etichetta-stato">${ETICHETTA_STATO_FONTE[fonte.status]}</span>
        </label>`
-    : `<span class="badge bozza">${escapeHtml(ETICHETTA_STATO_FONTE[fonte.status] || fonte.status || "")}</span>`;
+    : `<span class="stato-fisso">${escapeHtml(ETICHETTA_STATO_FONTE[fonte.status] || fonte.status || "")}</span>`;
 
   li.innerHTML = `
-    <div class="riga-sommario">
+    <div class="testi">
       <div class="titolo">${escapeHtml(fonte.organization_name)}</div>
+      <div class="dettagli">${dettagli}</div>
+      ${controllo ? `<div class="ultimo-controllo">Ultimo controllo: ${escapeHtml(quandoControllata(controllo))}</div>` : ""}
+    </div>
+    <div class="azioni-card">
       ${stato}
+      <button type="button" class="btn-link modifica">Modifica</button>
     </div>
-    ${dettagli ? `<div class="dettagli">${escapeHtml(dettagli)}</div>` : ""}
-    <div class="link-veloci">
-      ${fonte.website_url ? `<a href="${attr(fonte.website_url)}" target="_blank" rel="noopener">Sito →</a>` : ""}
-      ${fonte.opportunities_url ? `<a href="${attr(fonte.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>` : ""}
-      ${fonte.contact_email ? `<a href="mailto:${attr(fonte.contact_email)}">${escapeHtml(fonte.contact_email)}</a>` : ""}
-      ${fonte.contact_email && fonte.contact_email_source ? `<a href="${attr(fonte.contact_email_source)}" target="_blank" rel="noopener" title="Pagina dove è stata trovata la mail">dove l'ho trovata →</a>` : ""}
-    </div>
-    <div class="messaggio"></div>
+    <div class="messaggio pieno"></div>
   `;
 
   if (!fonte.contact_email) {
-    li.querySelector(".link-veloci").appendChild(
+    const dettagliEl = li.querySelector(".dettagli");
+    if (dettagliEl.innerHTML) dettagliEl.insertAdjacentHTML("beforeend", '<span class="punto">·</span>');
+    dettagliEl.appendChild(
       creaAggiungiEmail("sources", fonte, () => li.replaceWith(creaRigaFonteCompleta(fonte)))
     );
   }
 
+  const messaggio = li.querySelector(".messaggio");
+
+  // "Modifica": riquadro con i campi che il pannello può cambiare.
+  const bottoneModifica = li.querySelector(".modifica");
+  bottoneModifica.addEventListener("click", () => {
+    const esistente = li.querySelector(".modulo");
+    if (esistente) { esistente.remove(); return; }
+    const modulo = document.createElement("div");
+    modulo.className = "modulo pieno";
+    const griglia = document.createElement("div");
+    griglia.className = "griglia";
+    const input = {};
+    CAMPI_FONTE.forEach(([campo, etichetta, tipoCampo]) => {
+      const wrapper = document.createElement("div");
+      if (tipoCampo === "textarea") wrapper.className = "campo-largo";
+      const label = document.createElement("label");
+      label.textContent = etichetta;
+      const el = document.createElement(tipoCampo === "textarea" ? "textarea" : "input");
+      if (tipoCampo !== "textarea") el.type = tipoCampo;
+      el.value = fonte[campo] || "";
+      input[campo] = el;
+      wrapper.append(label, el);
+      griglia.appendChild(wrapper);
+    });
+    modulo.appendChild(griglia);
+    const azioni = document.createElement("div");
+    azioni.className = "azioni";
+    const salva = document.createElement("button");
+    salva.type = "button";
+    salva.className = "btn-primario";
+    salva.textContent = "Salva modifiche";
+    const annulla = document.createElement("button");
+    annulla.type = "button";
+    annulla.className = "btn-link";
+    annulla.textContent = "Annulla";
+    annulla.addEventListener("click", () => modulo.remove());
+    const esito = document.createElement("div");
+    esito.className = "messaggio";
+    salva.addEventListener("click", async () => {
+      // Solo i campi cambiati davvero.
+      const modifiche = {};
+      CAMPI_FONTE.forEach(([campo]) => {
+        const valore = input[campo].value.trim() || null;
+        if (valore !== (fonte[campo] || null)) modifiche[campo] = valore;
+      });
+      if (!Object.keys(modifiche).length) { modulo.remove(); return; }
+      if (modifiche.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(modifiche.contact_email)) {
+        esito.className = "messaggio errore";
+        esito.textContent = "Scrivi un indirizzo email valido.";
+        return;
+      }
+      esito.className = "messaggio";
+      esito.textContent = "Salvo…";
+      const { error } = await supabase.from("sources").update(modifiche).eq("id", fonte.id);
+      if (error) {
+        esito.className = "messaggio errore";
+        esito.textContent = "Errore: " + error.message;
+        return;
+      }
+      Object.assign(fonte, modifiche);
+      const nuova = creaRigaFonteCompleta(fonte);
+      const m = nuova.querySelector(".messaggio");
+      m.className = "messaggio pieno ok";
+      m.textContent = "Modifiche salvate.";
+      li.replaceWith(nuova);
+    });
+    azioni.append(salva, annulla);
+    modulo.append(azioni, esito);
+    li.insertBefore(modulo, messaggio);
+    input.website_url.focus();
+  });
+
   if (modificabile) {
     const casella = li.querySelector(".interruttore input");
     const etichetta = li.querySelector(".etichetta-stato");
-    const messaggio = li.querySelector(".messaggio");
     casella.addEventListener("change", async () => {
       const nuovo = casella.checked ? "active" : "paused";
       casella.disabled = true;
-      messaggio.className = "messaggio";
+      messaggio.className = "messaggio pieno";
       messaggio.textContent = "Salvo…";
       const { error } = await supabase.from("sources").update({ status: nuovo }).eq("id", fonte.id);
       casella.disabled = false;
       if (error) {
         casella.checked = !casella.checked;
-        messaggio.className = "messaggio errore";
+        messaggio.className = "messaggio pieno errore";
         messaggio.textContent = "Errore: " + error.message;
         return;
       }
       fonte.status = nuovo;
       etichetta.textContent = ETICHETTA_STATO_FONTE[nuovo];
-      messaggio.className = "messaggio ok";
+      aggiornaIntestazione();
+      messaggio.className = "messaggio pieno ok";
       messaggio.textContent = nuovo === "active"
         ? "Attiva: il Motore la legge dal prossimo giro."
         : "In pausa: il Motore non la legge più finché non la riattivi.";
@@ -1121,7 +1476,7 @@ async function caricaCandidate() {
 
   const [candidatiRisposta, battitoRisposta] = await Promise.all([
     supabase.from("source_candidates").select("*").order("found_at", { ascending: false }),
-    supabase.from("vedetta_agent_runs").select("run_at, candidates_found, note").order("run_at", { ascending: false }).limit(1),
+    supabase.from("vedetta_runs").select("run_at, summary, note").eq("subagente", "scoperta_fonti").order("run_at", { ascending: false }).limit(1),
   ]);
 
   if (candidatiRisposta.error) {
@@ -1132,14 +1487,16 @@ async function caricaCandidate() {
   candidatiCaricati = true;
   candidati = candidatiRisposta.data;
 
+  // Ultimo giro dello Scout. Se il database non ne concede la lettura,
+  // la riga non compare (meglio niente che un "mai controllato" falso).
   const ultimoBattito = battitoRisposta.data && battitoRisposta.data[0];
-  if (!ultimoBattito) {
-    battitoCandidate.textContent = "Nessun controllo eseguito ancora.";
-  } else {
+  if (ultimoBattito) {
+    const trovate = ultimoBattito.summary && ultimoBattito.summary.candidates_found;
     const eta = giorniDa(ultimoBattito.run_at);
-    const base = `Ultimo controllo: ${formattaData(ultimoBattito.run_at)} — ${ultimoBattito.candidates_found} ${ultimoBattito.candidates_found === 1 ? "fonte nuova" : "fonti nuove"} trovate.`;
+    const base = `Ultimo giro dello Scout: ${formattaData(ultimoBattito.run_at)}` +
+      (trovate != null ? ` — ${trovate} ${trovate === 1 ? "fonte nuova trovata" : "fonti nuove trovate"}.` : ".");
     if (eta > 10) {
-      battitoCandidate.innerHTML = `<div class="avviso-silenzio">Attenzione: nessun controllo da più di 10 giorni. ${escapeHtml(base)}</div>`;
+      battitoCandidate.innerHTML = `<span class="avviso">Nessun giro dello Scout da più di 10 giorni. ${escapeHtml(base)}</span>`;
     } else {
       battitoCandidate.textContent = base;
     }
@@ -1149,7 +1506,12 @@ async function caricaCandidate() {
 }
 
 function disegnaCandidate() {
-  const visibili = candidati.filter((c) => c.status === filtroCandidatoAttuale);
+  const testo = candidateCerca.value.trim().toLowerCase();
+  const visibili = candidati.filter((c) => {
+    if (c.status !== filtroCandidatoAttuale) return false;
+    if (!testo) return true;
+    return (c.organization_name + " " + (c.website_url || "")).toLowerCase().includes(testo);
+  });
   statoCandidate.textContent = visibili.length ? "" : "Nessuna fonte in questa vista.";
   elencoCandidateEl.innerHTML = "";
   visibili.forEach((c) => elencoCandidateEl.appendChild(creaRigaCandidato(c)));
@@ -1180,64 +1542,65 @@ function apriPopupCandidato(candidato, testoOk) {
 
 function creaRigaCandidato(candidato, nelPopup = false) {
   const li = document.createElement(nelPopup ? "div" : "li");
-  li.className = "candidato";
+  li.className = "card candidato";
 
-  const sommario = document.createElement("div");
-  sommario.className = "riga-sommario";
-  sommario.innerHTML = `
-    <div class="titolo">${nelPopup ? escapeHtml(candidato.organization_name) : `<button type="button" class="apri-popup">${escapeHtml(candidato.organization_name)}</button>`}
-      ${candidato.region ? `<span class="regione">${escapeHtml(ETICHETTA_REGIONE[candidato.region] || candidato.region)}</span>` : ""}
-      <span class="trovata">trovata il ${escapeHtml(formattaData(candidato.found_at))}</span>
-    </div>
-    <span class="badge ${escapeHtml(candidato.status)}">${candidato.status === "da_valutare" ? "Da valutare" : candidato.status === "approvato" ? "Approvata" : "Scartata"}</span>
-  `;
-  li.appendChild(sommario);
-  if (!nelPopup) {
-    sommario.querySelector(".apri-popup").addEventListener("click", () => apriPopupCandidato(candidato));
+  const testi = document.createElement("div");
+  testi.className = "testi";
+  li.appendChild(testi);
+  if (nelPopup) {
+    testi.innerHTML = `<div class="titolo">${escapeHtml(candidato.organization_name)}</div>`;
+  } else {
+    const titolo = document.createElement("button");
+    titolo.type = "button";
+    titolo.className = "titolo apri-popup";
+    titolo.title = "Apri il resoconto del sito";
+    titolo.textContent = candidato.organization_name;
+    titolo.addEventListener("click", () => apriPopupCandidato(candidato));
+    testi.appendChild(titolo);
   }
 
+  const follower = candidato.instagram_followers != null
+    ? " (" + Number(candidato.instagram_followers).toLocaleString("it-IT") + " follower)"
+    : "";
+  const dettagli = document.createElement("div");
+  dettagli.className = "dettagli";
+  dettagli.innerHTML = rigaPunti([
+    candidato.website_url ? `<a href="${attr(candidato.website_url)}" target="_blank" rel="noopener" title="Apri il sito">${escapeHtml(dominio(candidato.website_url))}</a>` : null,
+    candidato.opportunities_url ? `<a href="${attr(candidato.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi</a>` : null,
+    candidato.instagram_url ? `<a href="${attr(candidato.instagram_url)}" target="_blank" rel="noopener">Instagram${escapeHtml(follower)}</a>` : null,
+    candidato.region ? escapeHtml(ETICHETTA_REGIONE[candidato.region] || candidato.region) : null,
+    candidato.found_at ? "trovata il " + escapeHtml(formattaData(candidato.found_at)) : null,
+    candidato.contact_email ? `<a href="mailto:${attr(candidato.contact_email)}">${escapeHtml(candidato.contact_email)}</a>` : null,
+  ]);
+  if (!candidato.contact_email) {
+    if (dettagli.innerHTML) dettagli.insertAdjacentHTML("beforeend", '<span class="punto">·</span>');
+    dettagli.appendChild(creaAggiungiEmail("source_candidates", candidato, () => {
+      disegnaCandidate();
+      if (nelPopup) apriPopupCandidato(candidato);
+    }));
+  }
+  testi.appendChild(dettagli);
+
   if (nelPopup) {
+    // Nel pop-up: resoconto completo del sito e il "perché".
     const resoconto = document.createElement("div");
     resoconto.className = candidato.site_summary ? "resoconto" : "resoconto vuoto";
     resoconto.textContent = candidato.site_summary || "Resoconto non ancora scritto: Scout lo aggiunge quando trova la fonte.";
-    li.appendChild(resoconto);
+    testi.appendChild(resoconto);
     if (candidato.reason) {
       const etichetta = document.createElement("div");
       etichetta.className = "etichetta";
       etichetta.textContent = "Perché è stata proposta";
-      li.appendChild(etichetta);
+      const motivo = document.createElement("div");
+      motivo.className = "motivo";
+      motivo.textContent = candidato.reason;
+      testi.append(etichetta, motivo);
     }
-  }
-
-  if (candidato.reason) {
-    const motivo = document.createElement("div");
-    motivo.className = "motivo";
-    motivo.textContent = candidato.reason;
-    li.appendChild(motivo);
-  }
-
-  const linkVeloci = document.createElement("div");
-  linkVeloci.className = "link-veloci";
-  let linkHtml = `<a href="${attr(candidato.website_url)}" target="_blank" rel="noopener">Sito →</a>`;
-  if (candidato.opportunities_url) {
-    linkHtml += `<a href="${attr(candidato.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>`;
-  }
-  if (candidato.instagram_url) {
-    const follower = candidato.instagram_followers != null
-      ? " (" + Number(candidato.instagram_followers).toLocaleString("it-IT") + " follower)"
-      : "";
-    linkHtml += `<a href="${attr(candidato.instagram_url)}" target="_blank" rel="noopener">Instagram${escapeHtml(follower)} →</a>`;
-  }
-  if (candidato.contact_email) {
-    linkHtml += `<a href="mailto:${attr(candidato.contact_email)}">${escapeHtml(candidato.contact_email)}</a>`;
-  }
-  linkVeloci.innerHTML = linkHtml;
-  li.appendChild(linkVeloci);
-  if (!candidato.contact_email) {
-    linkVeloci.appendChild(creaAggiungiEmail("source_candidates", candidato, () => {
-      disegnaCandidate();
-      if (nelPopup) apriPopupCandidato(candidato);
-    }));
+  } else if (candidato.site_summary || candidato.reason) {
+    const riassunto = document.createElement("div");
+    riassunto.className = "riassunto";
+    riassunto.textContent = candidato.site_summary || candidato.reason;
+    testi.appendChild(riassunto);
   }
 
   const messaggio = document.createElement("div");
@@ -1262,15 +1625,17 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     if (nelPopup) apriPopupCandidato(candidato, testoOk);
   }
 
+  messaggio.className = "messaggio pieno";
+
   if (candidato.status === "da_valutare") {
     const azioni = document.createElement("div");
-    azioni.className = "azioni";
+    azioni.className = "azioni-card";
 
     // Approva e Scarta aprono lo stesso riquadro con una nota facoltativa
     // (decided_note): per lo scarto è il motivo, per l'approvazione sono le
     // indicazioni da seguire quando la fonte verrà esplorata dall'IA.
     const notaDecisione = document.createElement("div");
-    notaDecisione.className = "nota-scarto";
+    notaDecisione.className = "nota-scarto pieno";
     notaDecisione.hidden = true;
     const etichettaNota = document.createElement("label");
     notaDecisione.appendChild(etichettaNota);
@@ -1281,7 +1646,7 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     const bottoneConferma = document.createElement("button");
     azioniNota.appendChild(bottoneConferma);
     const bottoneAnnulla = document.createElement("button");
-    bottoneAnnulla.className = "annulla-scarto";
+    bottoneAnnulla.className = "btn-link";
     bottoneAnnulla.textContent = "Annulla";
     bottoneAnnulla.addEventListener("click", () => {
       notaDecisione.hidden = true;
@@ -1296,7 +1661,7 @@ function creaRigaCandidato(candidato, nelPopup = false) {
       etichettaNota.textContent = stato === "approvato"
         ? "Note per l'esplorazione della fonte (facoltativo): cosa guardare, quali sezioni, cosa ignorare"
         : "Perché la scarti? (facoltativo)";
-      bottoneConferma.className = stato === "approvato" ? "approva" : "scarta";
+      bottoneConferma.className = "btn-primario";
       bottoneConferma.textContent = stato === "approvato" ? "Conferma approvazione" : "Conferma scarto";
       azioni.hidden = true;
       notaDecisione.hidden = false;
@@ -1312,13 +1677,13 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     );
 
     const bottoneApprova = document.createElement("button");
-    bottoneApprova.className = "approva";
+    bottoneApprova.className = "btn-primario";
     bottoneApprova.textContent = "Approva";
     bottoneApprova.addEventListener("click", () => chiediNota("approvato"));
     azioni.appendChild(bottoneApprova);
 
     const bottoneScarta = document.createElement("button");
-    bottoneScarta.className = "scarta";
+    bottoneScarta.className = "btn-link";
     bottoneScarta.textContent = "Scarta";
     bottoneScarta.addEventListener("click", () => chiediNota("scartato"));
     azioni.appendChild(bottoneScarta);
@@ -1328,10 +1693,10 @@ function creaRigaCandidato(candidato, nelPopup = false) {
   } else {
     const decisione = document.createElement("div");
     decisione.className = "decisione";
+    testi.appendChild(decisione);
     decisione.textContent =
       `${candidato.status === "approvato" ? "Approvata" : "Scartata"} il ${formattaData(candidato.decided_at)}` +
       (candidato.decided_note ? ` — ${candidato.decided_note}` : "");
-    li.appendChild(decisione);
   }
 
   li.appendChild(messaggio);
