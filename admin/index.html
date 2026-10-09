@@ -315,8 +315,8 @@
   .candidato .azioni .annulla-scarto { background: #3a3b40; color: var(--fg); }
   .candidato .nota-scarto { margin-top: 0.6rem; }
   .aggiungi-email { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.82rem; }
-  .aggiungi-email .apri { background: none; border: none; padding: 0; margin: 0; color: var(--accent); cursor: pointer; font: inherit; }
-  .aggiungi-email .apri:hover { text-decoration: underline; }
+  .aggiungi-email .apri { background: rgba(192,80,63,0.12); border: 1px dashed var(--accent-danger); border-radius: 999px; padding: 0.05rem 0.6rem; margin: 0; color: var(--accent-danger); cursor: pointer; font: inherit; font-weight: 600; }
+  .aggiungi-email .apri:hover { background: rgba(192,80,63,0.22); }
   .aggiungi-email .riga { display: inline-flex; gap: 0.3rem; align-items: center; }
   .aggiungi-email .riga[hidden] { display: none; }
   .aggiungi-email input { width: 11rem; padding: 0.1rem 0.4rem; font-size: 0.78rem; margin: 0; border-radius: 4px; }
@@ -883,7 +883,7 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   const apri = document.createElement("button");
   apri.type = "button";
   apri.className = "apri";
-  apri.textContent = "+ Aggiungi email";
+  apri.textContent = "Email mancante · aggiungi";
   box.appendChild(apri);
 
   const campo = document.createElement("span");
