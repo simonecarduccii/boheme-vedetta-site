@@ -317,7 +317,7 @@
   .aggiungi-email { display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.82rem; }
   .aggiungi-email .apri { background: rgba(192,80,63,0.12); border: 1px dashed var(--accent-danger); border-radius: 999px; padding: 0.05rem 0.6rem; margin: 0; color: var(--accent-danger); cursor: pointer; font: inherit; font-weight: 600; }
   .aggiungi-email .apri:hover { background: rgba(192,80,63,0.22); }
-  .aggiungi-email .riga { display: inline-flex; gap: 0.3rem; align-items: center; }
+  .aggiungi-email .riga { display: inline-flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
   .aggiungi-email .riga[hidden] { display: none; }
   .aggiungi-email input { width: 11rem; padding: 0.1rem 0.4rem; font-size: 0.78rem; margin: 0; border-radius: 4px; }
   .aggiungi-email .salva { padding: 0.1rem 0.5rem; font-size: 0.78rem; margin: 0; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; }
@@ -896,7 +896,17 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   salva.type = "button";
   salva.className = "salva";
   salva.textContent = "Salva";
-  campo.append(input, salva);
+  campo.append(input);
+  // Solo per le fonti in sources: dove è stata trovata la mail
+  // (contact_email_source, DEC-V27 di boheme-vedetta).
+  let inputDove = null;
+  if (tabella === "sources") {
+    inputDove = document.createElement("input");
+    inputDove.type = "url";
+    inputDove.placeholder = "Dove l'hai trovata? (link)";
+    campo.append(inputDove);
+  }
+  campo.append(salva);
   box.appendChild(campo);
 
   const messaggio = document.createElement("span");
@@ -917,13 +927,15 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
     }
     messaggio.className = "messaggio";
     messaggio.textContent = "Salvo…";
-    const { error } = await supabase.from(tabella).update({ contact_email: email }).eq("id", riga.id);
+    const modifiche = { contact_email: email };
+    if (inputDove && inputDove.value.trim()) modifiche.contact_email_source = inputDove.value.trim();
+    const { error } = await supabase.from(tabella).update(modifiche).eq("id", riga.id);
     if (error) {
       messaggio.className = "messaggio errore";
       messaggio.textContent = "Errore: " + error.message;
       return;
     }
-    riga.contact_email = email;
+    Object.assign(riga, modifiche);
     dopoSalvataggio();
   });
   return box;
@@ -1047,6 +1059,7 @@ function creaRigaFonteCompleta(fonte) {
       ${fonte.website_url ? `<a href="${attr(fonte.website_url)}" target="_blank" rel="noopener">Sito →</a>` : ""}
       ${fonte.opportunities_url ? `<a href="${attr(fonte.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>` : ""}
       ${fonte.contact_email ? `<a href="mailto:${attr(fonte.contact_email)}">${escapeHtml(fonte.contact_email)}</a>` : ""}
+      ${fonte.contact_email && fonte.contact_email_source ? `<a href="${attr(fonte.contact_email_source)}" target="_blank" rel="noopener" title="Pagina dove è stata trovata la mail">dove l'ho trovata →</a>` : ""}
     </div>
     <div class="messaggio"></div>
   `;
