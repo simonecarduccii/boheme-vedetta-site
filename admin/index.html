@@ -314,6 +314,10 @@
   .candidato .azioni .scarta { background: var(--accent-danger); color: #fff; }
   .candidato .azioni .annulla-scarto { background: #3a3b40; color: var(--fg); }
   .candidato .nota-scarto { margin-top: 0.6rem; }
+  .aggiungi-email { margin-top: 0.4rem; font-size: 0.85rem; }
+  .aggiungi-email .apri { background: none; border: none; padding: 0; color: var(--accent); cursor: pointer; font: inherit; }
+  .aggiungi-email .riga { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .aggiungi-email input { flex: 1 1 14rem; min-width: 0; }
   .candidato .decisione { margin-top: 0.5rem; font-size: 0.82rem; color: var(--muted); }
   .candidato .apri-popup { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
   .candidato .apri-popup:hover { color: var(--accent); text-decoration-color: var(--accent); }
@@ -865,6 +869,61 @@ function creaModulo(bando) {
   return div;
 }
 
+// Per le fonti (attive o candidate) senza email di contatto: un link
+// "+ Aggiungi email" apre un campo per inserirla a mano. Scrive solo
+// contact_email (unica colonna in più concessa al pannello per questo).
+function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
+  const box = document.createElement("div");
+  box.className = "aggiungi-email";
+  const apri = document.createElement("button");
+  apri.type = "button";
+  apri.className = "apri";
+  apri.textContent = "+ Aggiungi email";
+  box.appendChild(apri);
+
+  const campo = document.createElement("div");
+  campo.className = "riga";
+  campo.hidden = true;
+  const input = document.createElement("input");
+  input.type = "email";
+  input.placeholder = "info@esempio.it";
+  const salva = document.createElement("button");
+  salva.type = "button";
+  salva.className = "salva";
+  salva.textContent = "Salva";
+  campo.append(input, salva);
+  box.appendChild(campo);
+
+  const messaggio = document.createElement("div");
+  messaggio.className = "messaggio";
+  box.appendChild(messaggio);
+
+  apri.addEventListener("click", () => {
+    apri.hidden = true;
+    campo.hidden = false;
+    input.focus();
+  });
+  salva.addEventListener("click", async () => {
+    const email = input.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      messaggio.className = "messaggio errore";
+      messaggio.textContent = "Scrivi un indirizzo email valido.";
+      return;
+    }
+    messaggio.className = "messaggio";
+    messaggio.textContent = "Salvo…";
+    const { error } = await supabase.from(tabella).update({ contact_email: email }).eq("id", riga.id);
+    if (error) {
+      messaggio.className = "messaggio errore";
+      messaggio.textContent = "Errore: " + error.message;
+      return;
+    }
+    riga.contact_email = email;
+    dopoSalvataggio();
+  });
+  return box;
+}
+
 // ---- tutte le fonti (zona Fonti) -----------------------------------
 
 const ETICHETTA_STATO_FONTE = { active: "Attiva", paused: "In pausa" };
@@ -970,6 +1029,13 @@ function creaRigaFonteCompleta(fonte) {
     </div>
     <div class="messaggio"></div>
   `;
+
+  if (!fonte.contact_email) {
+    li.insertBefore(
+      creaAggiungiEmail("sources", fonte, () => li.replaceWith(creaRigaFonteCompleta(fonte))),
+      li.querySelector(".messaggio")
+    );
+  }
 
   if (modificabile) {
     const casella = li.querySelector(".interruttore input");
@@ -1134,6 +1200,12 @@ function creaRigaCandidato(candidato, nelPopup = false) {
   }
   linkVeloci.innerHTML = linkHtml;
   li.appendChild(linkVeloci);
+  if (!candidato.contact_email) {
+    li.appendChild(creaAggiungiEmail("source_candidates", candidato, () => {
+      disegnaCandidate();
+      if (nelPopup) apriPopupCandidato(candidato);
+    }));
+  }
 
   const messaggio = document.createElement("div");
   messaggio.className = "messaggio";
