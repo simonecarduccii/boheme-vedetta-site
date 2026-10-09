@@ -9,7 +9,7 @@
 > codice sia nascosto. `boheme-vedetta` e `boheme-intelligence`
 > (il codice vero, il database, le chiavi) restano privati altrove.
 >
-> Aggiornato e confermato: 2026-09-10.
+> Aggiornato e confermato: 2026-10-09.
 
 ---
 
@@ -19,8 +19,19 @@
   prototipo minimale. Il design vero arriverà da `boheme-design`
   (agente 02), non ancora fatto.
 - `admin/index.html` — il pannello di revisione interno (login
-  richiesto): dove Simone rivede fonti candidate, bandi, opportunità.
-  Usato ogni giorno, è lo strumento di lavoro vero.
+  richiesto), usato ogni giorno: è lo strumento di lavoro vero. Qui
+  Simone:
+  - rivede i bandi trovati dal Motore dei bandi;
+  - in "Tutte le fonti" vede sito, pagina bandi e mail di ogni fonte,
+    mette una fonte in pausa o la riattiva con un interruttore, e scrive
+    a mano la mail che manca con il link di dove l'ha trovata (da quelle
+    Scout impara dove cercare);
+  - in "Fonti candidate" apre una finestrella con il riassunto del sito
+    scritto da Scout e approva o scarta, con una nota facoltativa. Una
+    candidata approvata entra da sola in "Tutte le fonti".
+
+Il database e le sue regole stanno in `boheme-vedetta`
+(`supabase/migrations/`, decisioni DEC-V23, V25, V26, V27).
 
 ## Come cambiare un testo da solo (nessun codice, nessun terminale)
 
