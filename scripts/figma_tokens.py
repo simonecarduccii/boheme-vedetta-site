@@ -2,34 +2,42 @@
 """Variabili Figma -> admin/tokens.css (stile del pannello).
 
 Uso:
-    python3 scripts/tokens_da_figma.py variabili.json
+    python3 scripts/figma_tokens.py /mnt/project-files/boheme/boheme-design/tokens/figma-tokens.json
 
-variabili.json è l'elenco delle variabili della collezione "Pannello" del
+Il JSON è l'elenco delle variabili della collezione "Bohème" del
 file Figma del pannello (C4KJafSmGKjI2EohOGnITc), come lo restituisce
 get_variable_defs del Figma MCP: {"colore/giallo": "#CCA40B", ...}.
 Lo script scrive admin/tokens.json (copia leggibile) e admin/tokens.css.
 Le variabili che mancano nel Figma restano col valore precedente, così
 una variabile cancellata per sbaglio non rompe il pannello.
 
-Regole: "gruppo/nome" -> --gruppo-nome. Colori così come sono, numeri in
-px, font (gruppo "font") tra virgolette e caricati da Google Fonts.
+Regole per i nomi (concordate col thread design): minuscole, accenti tolti,
+ogni carattere che non è a-z o 0-9 diventa "-" ("arti/Street Art" ->
+--arti-street-art). Colori così come sono, numeri in px, font (gruppo
+"font") tra virgolette e caricati da Google Fonts.
 """
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 RADICE = Path(__file__).resolve().parent.parent
 JSON_TOKEN = RADICE / "admin" / "tokens.json"
 CSS_TOKEN = RADICE / "admin" / "tokens.css"
-GRUPPI = ("colore", "arte", "font", "testo", "raggio", "spazio", "misura")
+GRUPPI = ("colore", "arti", "font", "testo", "angoli", "spazio", "layout")
 PESI_FONT = {"titoli": "600;700", "testo": "400;500;600;700"}
+
+
+def nome_css(nome):
+    senza_accenti = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode()
+    return "--" + re.sub(r"[^a-z0-9]+", "-", senza_accenti.lower()).strip("-")
 
 
 def pulisci_valore(nome, valore):
     gruppo = nome.split("/")[0]
     testo = str(valore).strip()
-    if gruppo in ("colore", "arte"):
+    if gruppo in ("colore", "arti"):
         m = re.fullmatch(r"#?([0-9A-Fa-f]{6})([0-9A-Fa-f]{2})?", testo)
         if not m:
             raise ValueError(f"{nome}: colore non valido {testo!r}")
@@ -69,7 +77,7 @@ def css(token):
     righe.append(":root {")
     for nome in sorted(token, key=lambda n: (GRUPPI.index(n.split("/")[0]), n)):
         valore = token[nome]
-        var = "--" + nome.replace("/", "-")
+        var = nome_css(nome)
         if nome.startswith("font/"):
             valore = f'"{valore}", system-ui, -apple-system, "Segoe UI", sans-serif'
         elif isinstance(valore, (int, float)):

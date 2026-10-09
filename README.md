@@ -60,16 +60,17 @@ secondo, niente è mai perso.
 ## Stile del pannello dal Figma
 
 Colori, font e misure del pannello non sono scritti nel codice: stanno in
-`admin/tokens.css`, generato dalle variabili della collezione "Pannello" del
+`admin/tokens.css`, generato dalle variabili della collezione "Bohème" del
 file Figma del pannello (`C4KJafSmGKjI2EohOGnITc`).
 
-Per aggiornare: leggere le variabili dal Figma (Figma MCP, `get_variable_defs`),
-salvarle in un JSON e lanciare
+Per aggiornare: il thread design legge le variabili dal Figma e le scrive in
+`/mnt/project-files/boheme/boheme-design/tokens/figma-tokens.json`; poi
 
-    python3 scripts/tokens_da_figma.py variabili.json
+    python3 scripts/figma_tokens.py /mnt/project-files/boheme/boheme-design/tokens/figma-tokens.json
 
-Lo script riscrive `admin/tokens.json` e `admin/tokens.css` e dice cosa è
-cambiato; poi commit e push su `main` (GitHub Pages pubblica da solo).
-Nomi: `gruppo/nome` nel Figma diventa `--gruppo-nome` nel CSS (gruppi:
-colore, arte, font, testo, raggio, spazio, misura). Una variabile assente nel
+riscrive `admin/tokens.json` e `admin/tokens.css` e dice cosa è cambiato;
+infine commit e push su `main` (GitHub Pages pubblica da solo).
+Nomi: minuscole, accenti tolti, ogni carattere che non è a-z o 0-9 diventa
+"-" (`colore/giallo-scuro testo` -> `--colore-giallo-scuro-testo`). Gruppi:
+colore, arti, font, testo, angoli, spazio, layout. Una variabile assente nel
 Figma tiene il valore di prima.
