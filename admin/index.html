@@ -945,8 +945,23 @@ const ETICHETTA_PAESE = {
   it: "Italia", gb: "Regno Unito", us: "Stati Uniti", fr: "Francia",
   es: "Spagna", au: "Australia", de: "Germania", at: "Austria",
   ch: "Svizzera", gr: "Grecia", in: "India", ca: "Canada", jp: "Giappone",
-  nl: "Paesi Bassi", be: "Belgio",
+  nl: "Paesi Bassi", be: "Belgio", si: "Slovenia", cy: "Cipro",
 };
+
+// Codici paese non ancora in elenco: nome italiano dal browser (es. "pl"
+// -> "Polonia"), così non compare mai la sigla nuda.
+const nomiPaese = typeof Intl !== "undefined" && Intl.DisplayNames
+  ? new Intl.DisplayNames(["it"], { type: "region" })
+  : null;
+function completaEtichettePaese(codici) {
+  codici.filter(Boolean).forEach((c) => {
+    if (ETICHETTA_PAESE[c]) return;
+    try {
+      const nome = nomiPaese && nomiPaese.of(c.toUpperCase());
+      if (nome && nome.toUpperCase() !== c.toUpperCase()) ETICHETTA_PAESE[c] = nome;
+    } catch (_) { /* codice non valido: resta la sigla */ }
+  });
+}
 
 function popolaFiltro(select, valori, etichette) {
   const attuale = select.value;
@@ -977,6 +992,7 @@ async function caricaTutteFonti() {
   tutteLeFonti = data;
   popolaFiltro(fontiFiltroStato, data.map((f) => f.status), ETICHETTA_STATO_FONTE);
   popolaFiltro(fontiFiltroTipo, data.map((f) => f.organization_type), ETICHETTA_TIPO_FONTE);
+  completaEtichettePaese(data.map((f) => f.country));
   popolaFiltro(fontiFiltroPaese, data.map((f) => f.country), ETICHETTA_PAESE);
   disegnaTutteFonti();
 }
