@@ -1158,59 +1158,65 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     const azioni = document.createElement("div");
     azioni.className = "azioni";
 
+    // Approva e Scarta aprono lo stesso riquadro con una nota facoltativa
+    // (decided_note): per lo scarto è il motivo, per l'approvazione sono le
+    // indicazioni da seguire quando la fonte verrà esplorata dall'IA.
+    const notaDecisione = document.createElement("div");
+    notaDecisione.className = "nota-scarto";
+    notaDecisione.hidden = true;
+    const etichettaNota = document.createElement("label");
+    notaDecisione.appendChild(etichettaNota);
+    const inputNota = document.createElement("textarea");
+    notaDecisione.appendChild(inputNota);
+    const azioniNota = document.createElement("div");
+    azioniNota.className = "azioni";
+    const bottoneConferma = document.createElement("button");
+    azioniNota.appendChild(bottoneConferma);
+    const bottoneAnnulla = document.createElement("button");
+    bottoneAnnulla.className = "annulla-scarto";
+    bottoneAnnulla.textContent = "Annulla";
+    bottoneAnnulla.addEventListener("click", () => {
+      notaDecisione.hidden = true;
+      azioni.hidden = false;
+    });
+    azioniNota.appendChild(bottoneAnnulla);
+    notaDecisione.appendChild(azioniNota);
+
+    let decisioneScelta = null;
+    function chiediNota(stato) {
+      decisioneScelta = stato;
+      etichettaNota.textContent = stato === "approvato"
+        ? "Note per l'esplorazione della fonte (facoltativo): cosa guardare, quali sezioni, cosa ignorare"
+        : "Perché la scarti? (facoltativo)";
+      bottoneConferma.className = stato === "approvato" ? "approva" : "scarta";
+      bottoneConferma.textContent = stato === "approvato" ? "Conferma approvazione" : "Conferma scarto";
+      azioni.hidden = true;
+      notaDecisione.hidden = false;
+      inputNota.focus();
+    }
+    bottoneConferma.addEventListener("click", () =>
+      decidi(
+        { status: decisioneScelta, decided_at: new Date().toISOString(), decided_note: inputNota.value.trim() || null },
+        decisioneScelta === "approvato"
+          ? "Approvata. Non è ancora monitorata: va aggiunta per bene alle fonti monitorate insieme a Claude."
+          : "Scartata."
+      )
+    );
+
     const bottoneApprova = document.createElement("button");
     bottoneApprova.className = "approva";
     bottoneApprova.textContent = "Approva";
-    bottoneApprova.addEventListener("click", () =>
-      decidi(
-        { status: "approvato", decided_at: new Date().toISOString(), decided_note: null },
-        "Approvata. Non è ancora monitorata: va aggiunta per bene alle fonti monitorate insieme a Claude."
-      )
-    );
+    bottoneApprova.addEventListener("click", () => chiediNota("approvato"));
     azioni.appendChild(bottoneApprova);
 
     const bottoneScarta = document.createElement("button");
     bottoneScarta.className = "scarta";
     bottoneScarta.textContent = "Scarta";
-    bottoneScarta.addEventListener("click", () => {
-      azioni.hidden = true;
-      notaScarto.hidden = false;
-    });
+    bottoneScarta.addEventListener("click", () => chiediNota("scartato"));
     azioni.appendChild(bottoneScarta);
 
     li.appendChild(azioni);
-
-    const notaScarto = document.createElement("div");
-    notaScarto.className = "nota-scarto";
-    notaScarto.hidden = true;
-    notaScarto.innerHTML = `<label>Perché la scarti? (facoltativo)</label>`;
-    const inputNota = document.createElement("textarea");
-    notaScarto.appendChild(inputNota);
-    const azioniScarto = document.createElement("div");
-    azioniScarto.className = "azioni";
-
-    const bottoneConferma = document.createElement("button");
-    bottoneConferma.className = "scarta";
-    bottoneConferma.textContent = "Conferma scarto";
-    bottoneConferma.addEventListener("click", () =>
-      decidi(
-        { status: "scartato", decided_at: new Date().toISOString(), decided_note: inputNota.value.trim() || null },
-        "Scartata."
-      )
-    );
-    azioniScarto.appendChild(bottoneConferma);
-
-    const bottoneAnnulla = document.createElement("button");
-    bottoneAnnulla.className = "annulla-scarto";
-    bottoneAnnulla.textContent = "Annulla";
-    bottoneAnnulla.addEventListener("click", () => {
-      notaScarto.hidden = true;
-      azioni.hidden = false;
-    });
-    azioniScarto.appendChild(bottoneAnnulla);
-
-    notaScarto.appendChild(azioniScarto);
-    li.appendChild(notaScarto);
+    li.appendChild(notaDecisione);
   } else {
     const decisione = document.createElement("div");
     decisione.className = "decisione";
