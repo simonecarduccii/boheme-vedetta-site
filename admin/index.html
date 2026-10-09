@@ -382,7 +382,7 @@
       </div>
 
       <div id="vista-candidate" hidden>
-      <p class="sotto" style="margin: 1rem 0;">Organizzazioni nuove trovate dall'agente di scoperta fonti (boheme-vedetta, subagente 1), non ancora monitorate. Approva quelle da tenere d'occhio, scarta le altre — la decisione resta tua. Un candidato approvato non è ancora monitorato: va aggiunto per bene alle fonti monitorate insieme a Claude.</p>
+      <p class="sotto" style="margin: 1rem 0;">Organizzazioni nuove trovate dall'agente di scoperta fonti (boheme-vedetta, subagente 1), non ancora monitorate. Approva quelle da tenere d'occhio, scarta le altre — la decisione resta tua. Una fonte approvata entra subito in "Tutte le fonti" come attiva, con la tua nota.</p>
       <div id="battito-candidate" class="sotto" style="margin-bottom: 1rem;"></div>
       <div class="filtri">
         <button data-filtro-candidato="da_valutare" class="attivo">Da valutare</button>
@@ -525,6 +525,7 @@ document.querySelectorAll("[data-sub-sources]").forEach((bottone) => {
     vistaTutteFonti.hidden = sub !== "tutte";
     vistaCandidate.hidden = sub !== "candidate";
     if (sub === "candidate" && !candidatiCaricati) caricaCandidate();
+    if (sub === "tutte" && !tutteFontiCaricate) caricaTutteFonti();
   });
 });
 
@@ -1220,6 +1221,9 @@ function creaRigaCandidato(candidato, nelPopup = false) {
       return;
     }
     Object.assign(candidato, patch);
+    // l'approvazione crea la fonte in sources (trigger nel database):
+    // "Tutte le fonti" va riletta la prossima volta che si apre
+    if (patch.status === "approvato") tutteFontiCaricate = false;
     messaggio.className = "messaggio ok";
     messaggio.textContent = testoOk;
     disegnaCandidate();
@@ -1270,7 +1274,7 @@ function creaRigaCandidato(candidato, nelPopup = false) {
       decidi(
         { status: decisioneScelta, decided_at: new Date().toISOString(), decided_note: inputNota.value.trim() || null },
         decisioneScelta === "approvato"
-          ? "Approvata. Non è ancora monitorata: va aggiunta per bene alle fonti monitorate insieme a Claude."
+          ? "Approvata: ora è in \"Tutte le fonti\", attiva."
           : "Scartata."
       )
     );
