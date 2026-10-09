@@ -966,6 +966,7 @@ function creaRigaFonteCompleta(fonte) {
     <div class="link-veloci">
       ${fonte.website_url ? `<a href="${attr(fonte.website_url)}" target="_blank" rel="noopener">Sito →</a>` : ""}
       ${fonte.opportunities_url ? `<a href="${attr(fonte.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>` : ""}
+      ${fonte.contact_email ? `<a href="mailto:${attr(fonte.contact_email)}">${escapeHtml(fonte.contact_email)}</a>` : ""}
     </div>
     <div class="messaggio"></div>
   `;
@@ -1119,6 +1120,9 @@ function creaRigaCandidato(candidato, nelPopup = false) {
   const linkVeloci = document.createElement("div");
   linkVeloci.className = "link-veloci";
   let linkHtml = `<a href="${attr(candidato.website_url)}" target="_blank" rel="noopener">Sito →</a>`;
+  if (candidato.opportunities_url) {
+    linkHtml += `<a href="${attr(candidato.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>`;
+  }
   if (candidato.instagram_url) {
     const follower = candidato.instagram_followers != null
       ? " (" + Number(candidato.instagram_followers).toLocaleString("it-IT") + " follower)"
