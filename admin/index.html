@@ -278,6 +278,15 @@
   .fonte-completa .riga-sommario { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
   .fonte-completa .titolo { font-weight: 600; }
   .fonte-completa .dettagli { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+  .fonte-completa .messaggio:empty { display: none; }
+  .interruttore { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); cursor: pointer; }
+  .interruttore input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .interruttore .binario { width: 2.2rem; height: 1.2rem; border-radius: 999px; background: var(--line); position: relative; transition: background 0.15s; flex: none; }
+  .interruttore .binario::after { content: ""; position: absolute; top: 0.15rem; left: 0.15rem; width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--fg); transition: transform 0.15s; }
+  .interruttore input:checked + .binario { background: var(--ok); }
+  .interruttore input:checked + .binario::after { transform: translateX(1rem); }
+  .interruttore input:focus-visible + .binario { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .interruttore input:disabled + .binario { opacity: 0.5; }
 
   /* ---- fonti da rivedere ---- */
   .fonte { background: var(--card-bg); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; }
@@ -933,17 +942,53 @@ function creaRigaFonteCompleta(fonte) {
     fonte.country ? ETICHETTA_PAESE[fonte.country] || fonte.country.toUpperCase() : null,
   ].filter(Boolean).join(" · ");
 
+  const modificabile = fonte.status === "active" || fonte.status === "paused";
+  const stato = modificabile
+    ? `<label class="interruttore" title="Il Motore legge solo le fonti attive">
+         <span class="etichetta-stato">${ETICHETTA_STATO_FONTE[fonte.status]}</span>
+         <input type="checkbox" ${fonte.status === "active" ? "checked" : ""}>
+         <span class="binario"></span>
+       </label>`
+    : `<span class="badge bozza">${escapeHtml(ETICHETTA_STATO_FONTE[fonte.status] || fonte.status || "")}</span>`;
+
   li.innerHTML = `
     <div class="riga-sommario">
       <div class="titolo">${escapeHtml(fonte.organization_name)}</div>
-      <span class="badge ${fonte.status === "active" ? "pubblicato" : "bozza"}">${escapeHtml(ETICHETTA_STATO_FONTE[fonte.status] || fonte.status || "")}</span>
+      ${stato}
     </div>
     ${dettagli ? `<div class="dettagli">${escapeHtml(dettagli)}</div>` : ""}
     <div class="link-veloci">
       ${fonte.website_url ? `<a href="${attr(fonte.website_url)}" target="_blank" rel="noopener">Sito →</a>` : ""}
       ${fonte.opportunities_url ? `<a href="${attr(fonte.opportunities_url)}" target="_blank" rel="noopener">Pagina bandi →</a>` : ""}
     </div>
+    <div class="messaggio"></div>
   `;
+
+  if (modificabile) {
+    const casella = li.querySelector(".interruttore input");
+    const etichetta = li.querySelector(".etichetta-stato");
+    const messaggio = li.querySelector(".messaggio");
+    casella.addEventListener("change", async () => {
+      const nuovo = casella.checked ? "active" : "paused";
+      casella.disabled = true;
+      messaggio.className = "messaggio";
+      messaggio.textContent = "Salvo…";
+      const { error } = await supabase.from("sources").update({ status: nuovo }).eq("id", fonte.id);
+      casella.disabled = false;
+      if (error) {
+        casella.checked = !casella.checked;
+        messaggio.className = "messaggio errore";
+        messaggio.textContent = "Errore: " + error.message;
+        return;
+      }
+      fonte.status = nuovo;
+      etichetta.textContent = ETICHETTA_STATO_FONTE[nuovo];
+      messaggio.className = "messaggio ok";
+      messaggio.textContent = nuovo === "active"
+        ? "Attiva: il Motore la legge dal prossimo giro."
+        : "In pausa: il Motore non la legge più finché non la riattivi.";
+    });
+  }
   return li;
 }
 
