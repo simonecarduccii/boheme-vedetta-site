@@ -315,6 +315,17 @@
   .candidato .azioni .annulla-scarto { background: #3a3b40; color: var(--fg); }
   .candidato .nota-scarto { margin-top: 0.6rem; }
   .candidato .decisione { margin-top: 0.5rem; font-size: 0.82rem; color: var(--muted); }
+  .candidato .apri-popup { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .candidato .apri-popup:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  .candidato .resoconto { margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.5; }
+  .candidato .resoconto.vuoto { color: var(--muted); font-style: italic; }
+  .candidato .etichetta { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.9rem; }
+  #popup-candidato { background: var(--card-bg); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); }
+  #popup-candidato::backdrop { background: rgba(0,0,0,0.6); }
+  #popup-candidato .candidato { border: none; padding: 1.4rem 1.4rem 1.2rem; }
+  #popup-candidato .chiudi { position: absolute; top: 0.5rem; right: 0.6rem; background: none; border: none; color: var(--muted); font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 0.3rem; }
+  #popup-candidato .chiudi:hover { color: var(--fg); }
+  #popup-candidato .riga-sommario { padding-right: 1.8rem; }
 </style>
 </head>
 <body>
@@ -339,7 +350,7 @@
   </header>
   <main>
     <nav class="sezioni">
-      <button data-zona="sources" class="attivo">Sources</button>
+      <button data-zona="sources" class="attivo">Fonti</button>
       <button data-zona="opencall">Opencall</button>
     </nav>
 
@@ -367,7 +378,7 @@
       </div>
 
       <div id="vista-candidate" hidden>
-      <p class="sotto" style="margin: 1rem 0;">Organizzazioni nuove trovate dall'agente di scoperta fonti (boheme-vedetta, subagente 1), non ancora monitorate. Approva quelle da tenere d'occhio, scarta le altre — la decisione resta tua. Un candidato approvato non è ancora monitorato: va aggiunto per bene a "sources" insieme a Claude.</p>
+      <p class="sotto" style="margin: 1rem 0;">Organizzazioni nuove trovate dall'agente di scoperta fonti (boheme-vedetta, subagente 1), non ancora monitorate. Approva quelle da tenere d'occhio, scarta le altre — la decisione resta tua. Un candidato approvato non è ancora monitorato: va aggiunto per bene alle fonti monitorate insieme a Claude.</p>
       <div id="battito-candidate" class="sotto" style="margin-bottom: 1rem;"></div>
       <div class="filtri">
         <button data-filtro-candidato="da_valutare" class="attivo">Da valutare</button>
@@ -376,6 +387,10 @@
       </div>
       <div id="stato-candidate"></div>
       <ul id="elenco-candidate" class="elenco"></ul>
+      <dialog id="popup-candidato" aria-label="Resoconto della fonte candidata">
+        <button class="chiudi" type="button" aria-label="Chiudi">×</button>
+        <div id="popup-contenuto"></div>
+      </dialog>
       </div>
     </div>
 
@@ -850,7 +865,7 @@ function creaModulo(bando) {
   return div;
 }
 
-// ---- tutte le fonti (zona Sources) -----------------------------------
+// ---- tutte le fonti (zona Fonti) -----------------------------------
 
 const ETICHETTA_STATO_FONTE = { active: "Attiva", paused: "In pausa" };
 
@@ -1040,20 +1055,59 @@ function disegnaCandidate() {
   visibili.forEach((c) => elencoCandidateEl.appendChild(creaRigaCandidato(c)));
 }
 
-function creaRigaCandidato(candidato) {
-  const li = document.createElement("li");
+// Pop-up con il resoconto del sito: si apre cliccando sul nome di una
+// fonte candidata, al posto di aprire il sito in una nuova pagina. Il
+// resoconto (site_summary) lo scrive Scout quando trova la fonte; se
+// manca, il pop-up mostra solo il "perché" già presente.
+const popupCandidato = document.getElementById("popup-candidato");
+const popupContenuto = document.getElementById("popup-contenuto");
+popupCandidato.querySelector(".chiudi").addEventListener("click", () => popupCandidato.close());
+popupCandidato.addEventListener("click", (evento) => {
+  if (evento.target === popupCandidato) popupCandidato.close();
+});
+
+function apriPopupCandidato(candidato, testoOk) {
+  popupContenuto.innerHTML = "";
+  const scheda = creaRigaCandidato(candidato, true);
+  if (testoOk) {
+    const messaggio = scheda.querySelector(".messaggio");
+    messaggio.className = "messaggio ok";
+    messaggio.textContent = testoOk;
+  }
+  popupContenuto.appendChild(scheda);
+  if (!popupCandidato.open) popupCandidato.showModal();
+}
+
+function creaRigaCandidato(candidato, nelPopup = false) {
+  const li = document.createElement(nelPopup ? "div" : "li");
   li.className = "candidato";
 
   const sommario = document.createElement("div");
   sommario.className = "riga-sommario";
   sommario.innerHTML = `
-    <div class="titolo">${escapeHtml(candidato.organization_name)}
+    <div class="titolo">${nelPopup ? escapeHtml(candidato.organization_name) : `<button type="button" class="apri-popup">${escapeHtml(candidato.organization_name)}</button>`}
       ${candidato.region ? `<span class="regione">${escapeHtml(ETICHETTA_REGIONE[candidato.region] || candidato.region)}</span>` : ""}
       <span class="trovata">trovata il ${escapeHtml(formattaData(candidato.found_at))}</span>
     </div>
     <span class="badge ${escapeHtml(candidato.status)}">${candidato.status === "da_valutare" ? "Da valutare" : candidato.status === "approvato" ? "Approvata" : "Scartata"}</span>
   `;
   li.appendChild(sommario);
+  if (!nelPopup) {
+    sommario.querySelector(".apri-popup").addEventListener("click", () => apriPopupCandidato(candidato));
+  }
+
+  if (nelPopup) {
+    const resoconto = document.createElement("div");
+    resoconto.className = candidato.site_summary ? "resoconto" : "resoconto vuoto";
+    resoconto.textContent = candidato.site_summary || "Resoconto non ancora scritto: Scout lo aggiunge quando trova la fonte.";
+    li.appendChild(resoconto);
+    if (candidato.reason) {
+      const etichetta = document.createElement("div");
+      etichetta.className = "etichetta";
+      etichetta.textContent = "Perché è stata proposta";
+      li.appendChild(etichetta);
+    }
+  }
 
   if (candidato.reason) {
     const motivo = document.createElement("div");
@@ -1093,6 +1147,7 @@ function creaRigaCandidato(candidato) {
     messaggio.className = "messaggio ok";
     messaggio.textContent = testoOk;
     disegnaCandidate();
+    if (nelPopup) apriPopupCandidato(candidato, testoOk);
   }
 
   if (candidato.status === "da_valutare") {
@@ -1105,7 +1160,7 @@ function creaRigaCandidato(candidato) {
     bottoneApprova.addEventListener("click", () =>
       decidi(
         { status: "approvato", decided_at: new Date().toISOString(), decided_note: null },
-        "Approvata. Non è ancora monitorata: va aggiunta per bene a \"sources\" insieme a Claude."
+        "Approvata. Non è ancora monitorata: va aggiunta per bene alle fonti monitorate insieme a Claude."
       )
     );
     azioni.appendChild(bottoneApprova);
