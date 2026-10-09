@@ -56,3 +56,20 @@ secondo, niente è mai perso.
   altro repository, cartella affianco a questa).
 - Le linee guida di stile e il design vero del sito pubblico:
   `boheme-design` (agente 02, ancora da fare).
+
+## Stile del pannello dal Figma
+
+Colori, font e misure del pannello non sono scritti nel codice: stanno in
+`admin/tokens.css`, generato dalle variabili della collezione "Pannello" del
+file Figma del pannello (`C4KJafSmGKjI2EohOGnITc`).
+
+Per aggiornare: leggere le variabili dal Figma (Figma MCP, `get_variable_defs`),
+salvarle in un JSON e lanciare
+
+    python3 scripts/tokens_da_figma.py variabili.json
+
+Lo script riscrive `admin/tokens.json` e `admin/tokens.css` e dice cosa è
+cambiato; poi commit e push su `main` (GitHub Pages pubblica da solo).
+Nomi: `gruppo/nome` nel Figma diventa `--gruppo-nome` nel CSS (gruppi:
+colore, arte, font, testo, raggio, spazio, misura). Una variabile assente nel
+Figma tiene il valore di prima.

@@ -7,146 +7,132 @@
 <title>Bohème Vedetta — Revisione bandi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<!-- Colori, font e misure: tokens.css, generato dalle variabili del Figma
+     (scripts/tokens_da_figma.py). Qui sotto solo come usarli. -->
+<link rel="stylesheet" href="tokens.css">
 <style>
   /* Design "A · Crema" (boheme-design/proposte/pannello-vedetta/finale/SPECIFICA.md) */
-  :root {
-    --giallo: #CCA40B;
-    --giallo-scuro: #8A6D00;
-    --giallo-chiaro: #F1E9CE;
-    --crema: #FFFDF5;
-    --beige: #F3F1E6;
-    --bianco: #FFFEFD;
-    --nero: #252114;
-    --grigio: #918C7B;
-    --linee: #E7E2CF;
-    --rosso: #C0503F;
-    --rosso-chiaro: #FCE5E3;
-    --verde: #4F9D6E;
-    --titoli: "Montserrat", system-ui, sans-serif;
-    --testo: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-    color-scheme: light;
-  }
+  :root { color-scheme: light; }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--crema);
-    color: var(--nero);
-    font-family: var(--testo);
+    background: var(--colore-crema);
+    color: var(--colore-nero);
+    font-family: var(--font-testo);
     font-size: 14px;
     line-height: 1.45;
   }
   a { color: inherit; }
   button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; padding: 0; }
   button:disabled { opacity: 0.55; cursor: default; }
-  input, textarea, select { font: inherit; color: var(--nero); }
+  input, textarea, select { font: inherit; color: var(--colore-nero); }
   [hidden] { display: none !important; }
 
   /* ---- bottoni (componenti) ---- */
   .btn-primario {
-    background: var(--giallo); color: var(--bianco);
-    font-weight: 600; font-size: 13px;
+    background: var(--colore-giallo); color: var(--colore-bianco);
+    font-weight: 600; font-size: var(--testo-bottone);
     padding: 10px 18px; border-radius: 999px; white-space: nowrap;
   }
-  .btn-primario:hover { background: var(--giallo-scuro); }
+  .btn-primario:hover { background: var(--colore-giallo-scuro); }
   .btn-link {
-    color: var(--nero); font-weight: 500; font-size: 13px;
+    color: var(--colore-nero); font-weight: 500; font-size: var(--testo-bottone);
     text-decoration: underline; text-underline-offset: 3px;
     padding: 10px; white-space: nowrap;
   }
-  .btn-link:hover { color: var(--giallo-scuro); }
+  .btn-link:hover { color: var(--colore-giallo-scuro); }
   .btn-secondario {
-    border: 1px solid var(--nero); color: var(--nero);
-    font-weight: 500; font-size: 13px;
+    border: 1px solid var(--colore-nero); color: var(--colore-nero);
+    font-weight: 500; font-size: var(--testo-bottone);
     padding: 8px 16px; border-radius: 999px; white-space: nowrap;
   }
-  .btn-secondario:hover { background: var(--beige); }
+  .btn-secondario:hover { background: var(--colore-beige); }
 
   /* ---- campi dei moduli (non nel Figma: stesso stile) ---- */
   .campo input, .campo textarea, .modulo input, .modulo textarea, .nota-scarto textarea, #login input {
     width: 100%;
-    background: var(--bianco);
-    border: 1px solid var(--linee);
+    background: var(--colore-bianco);
+    border: 1px solid var(--colore-linee);
     border-radius: 10px;
     padding: 9px 12px;
     font-size: 14px;
   }
   textarea { min-height: 5rem; resize: vertical; }
-  input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--giallo); outline-offset: 1px; }
-  label { display: block; font-size: 12px; font-weight: 500; color: var(--grigio); margin: 12px 0 4px; }
+  input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--colore-giallo); outline-offset: 1px; }
+  label { display: block; font-size: 12px; font-weight: 500; color: var(--colore-grigio); margin: 12px 0 4px; }
 
   /* ---- testata ---- */
   .testata {
-    background: var(--giallo);
-    height: 83px;
+    background: var(--colore-giallo);
+    height: var(--misura-testata);
     padding: 22px 48px;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    color: var(--bianco);
+    color: var(--colore-bianco);
   }
   .testata .marchio { display: flex; align-items: center; gap: 16px; min-width: 0; }
   .testata .marchio svg { display: block; flex: none; }
-  .testata .separatore { width: 1px; height: 22px; background: var(--linee); flex: none; }
-  .testata .nome-pannello { font-family: var(--titoli); font-weight: 600; font-size: 15px; white-space: nowrap; }
+  .testata .separatore { width: 1px; height: 22px; background: var(--colore-linee); flex: none; }
+  .testata .nome-pannello { font-family: var(--font-titoli); font-weight: 600; font-size: var(--testo-testata); white-space: nowrap; }
   .testata .utente { display: flex; align-items: center; gap: 16px; }
   .testata #utente-corrente { font-size: 13px; }
-  .testata #logout { border-color: var(--bianco); color: var(--bianco); }
+  .testata #logout { border-color: var(--colore-bianco); color: var(--colore-bianco); }
   .testata #logout:hover { background: rgba(255,255,255,0.15); }
 
   /* ---- contenuto ---- */
   main {
-    max-width: calc(1024px + 2 * 32px);
+    max-width: calc(var(--misura-contenuto) + 2 * 32px);
     margin: 0 auto;
-    padding: 64px 32px;
-    display: flex; flex-direction: column; gap: 32px;
+    padding: var(--spazio-margine-pagina) 32px;
+    display: flex; flex-direction: column; gap: var(--spazio-blocchi);
   }
-  .su, .giu { display: flex; flex-direction: column; gap: 24px; }
+  .su, .giu { display: flex; flex-direction: column; gap: var(--spazio-interno-blocco); }
   .intestazione h1 {
-    font-family: var(--titoli); font-weight: 700; font-size: 30px;
+    font-family: var(--font-titoli); font-weight: 700; font-size: var(--testo-titolo-pagina);
     letter-spacing: -0.01em; line-height: 1.2; margin: 0;
   }
-  .intestazione p { margin: 4px 0 0; font-size: 15px; font-weight: 500; color: var(--giallo-scuro); min-height: 1.45em; }
+  .intestazione p { margin: 4px 0 0; font-size: var(--testo-sottotitolo); font-weight: 500; color: var(--colore-giallo-scuro); min-height: 1.45em; }
 
-  .sezioni { display: flex; gap: 28px; }
+  .sezioni { display: flex; gap: var(--spazio-sezioni); }
   .sezioni button {
-    font-family: var(--titoli); font-size: 16px; font-weight: 600; color: var(--grigio);
+    font-family: var(--font-titoli); font-size: var(--testo-sezione); font-weight: 600; color: var(--colore-grigio);
     padding-bottom: 9px; position: relative;
   }
-  .sezioni button.attivo { color: var(--nero); font-weight: 700; }
+  .sezioni button.attivo { color: var(--colore-nero); font-weight: 700; }
   .sezioni button.attivo::after {
     content: ""; position: absolute; left: 0; bottom: 0;
-    width: 40px; height: 3px; border-radius: 2px; background: var(--giallo);
+    width: 40px; height: 3px; border-radius: 2px; background: var(--colore-giallo);
   }
 
   .pillole { display: flex; gap: 10px; flex-wrap: wrap; }
   .pillole button {
-    background: var(--beige); color: var(--nero);
-    font-size: 14px; font-weight: 500;
+    background: var(--colore-beige); color: var(--colore-nero);
+    font-size: var(--testo-filtro); font-weight: 500;
     padding: 10px 18px; border-radius: 999px;
   }
-  .pillole button.attivo { background: var(--giallo); color: var(--bianco); font-weight: 600; }
+  .pillole button.attivo { background: var(--colore-giallo); color: var(--colore-bianco); font-weight: 600; }
 
   /* riga ricerca + filtri */
   .riga-ricerca { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .ricerca {
     flex: 1 1 260px;
     display: flex; align-items: center; gap: 8px;
-    background: var(--beige); border-radius: 999px;
+    background: var(--colore-beige); border-radius: 999px;
     height: 40px; padding: 11px 16px; margin: 0;
   }
-  .ricerca svg { flex: none; color: var(--grigio); }
+  .ricerca svg { flex: none; color: var(--colore-grigio); }
   .ricerca input {
     border: none; background: transparent; padding: 0; width: 100%; font-size: 14px; outline: none;
   }
-  .ricerca:focus-within { outline: 2px solid var(--giallo); outline-offset: 1px; }
-  .ricerca input::placeholder { color: var(--grigio); }
+  .ricerca:focus-within { outline: 2px solid var(--colore-giallo); outline-offset: 1px; }
+  .ricerca input::placeholder { color: var(--colore-grigio); }
   .ricerca input::-webkit-search-cancel-button { cursor: pointer; }
   .filtro, .riga-ricerca select {
-    background: var(--beige); color: var(--nero);
-    font-size: 14px; font-weight: 500;
-    padding: 10px 18px; border-radius: 12px; border: none;
+    background: var(--colore-beige); color: var(--colore-nero);
+    font-size: var(--testo-filtro); font-weight: 500;
+    padding: 10px 18px; border-radius: var(--raggio-filtro); border: none;
     height: 37px;
   }
-  .filtro.attivo { background: var(--giallo); color: var(--bianco); font-weight: 600; }
+  .filtro.attivo { background: var(--colore-giallo); color: var(--colore-bianco); font-weight: 600; }
   .riga-ricerca select {
     appearance: none; -webkit-appearance: none; cursor: pointer;
     padding-right: 38px; /* freccia a 8px dal testo */
@@ -154,16 +140,16 @@
     background-repeat: no-repeat; background-position: right 18px center;
   }
 
-  .stato-elenco { color: var(--grigio); text-align: center; padding: 8px 0; }
+  .stato-elenco { color: var(--colore-grigio); text-align: center; padding: 8px 0; }
   .stato-elenco:empty { display: none; }
-  ul.elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
-  #elenco-candidate { gap: 12px; }
+  ul.elenco { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--spazio-tra-card); }
+  #elenco-candidate { gap: var(--spazio-tra-candidate); }
 
   /* ---- card ---- */
   .card {
-    background: var(--beige);
-    border-radius: 20px;
-    padding: 24px;
+    background: var(--colore-beige);
+    border-radius: var(--raggio-card);
+    padding: var(--spazio-padding-card);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: 20px;
@@ -172,71 +158,71 @@
   .card > .pieno, .card > .messaggio { grid-column: 1 / -1; }
   .card .testi { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .card .titolo {
-    font-family: var(--titoli); font-weight: 700; font-size: 16px; line-height: 1.3;
+    font-family: var(--font-titoli); font-weight: 700; font-size: var(--testo-titolo-fonte); line-height: 1.3;
     text-align: left; overflow-wrap: anywhere;
   }
-  button.titolo:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--giallo); }
-  .card .dettagli { font-size: 13px; color: var(--grigio); overflow-wrap: anywhere; }
-  .card .dettagli a { color: var(--grigio); text-decoration: none; }
-  .card .dettagli a:hover { color: var(--nero); text-decoration: underline; }
+  button.titolo:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--colore-giallo); }
+  .card .dettagli { font-size: var(--testo-dettagli); color: var(--colore-grigio); overflow-wrap: anywhere; }
+  .card .dettagli a { color: var(--colore-grigio); text-decoration: none; }
+  .card .dettagli a:hover { color: var(--colore-nero); text-decoration: underline; }
   .card .dettagli .punto { margin: 0 6px; }
   .azioni-card { display: flex; align-items: center; gap: 8px; }
   .messaggio { font-size: 13px; }
   .messaggio:empty { display: none; }
   .card > .messaggio { margin-top: 10px; }
-  .messaggio.ok { color: var(--verde); }
-  .messaggio.errore { color: var(--rosso); }
+  .messaggio.ok { color: var(--colore-verde); }
+  .messaggio.errore { color: var(--colore-rosso); }
 
   /* card bando */
-  .bando { padding: 18px 20px; grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .bando { padding: var(--spazio-padding-bando-v) var(--spazio-padding-bando-h); grid-template-columns: var(--misura-scadenza) minmax(0, 1fr) auto; }
   .bando .testi { gap: 8px; }
-  .bando .titolo { font-size: 17px; }
+  .bando .titolo { font-size: var(--testo-titolo-bando); }
   .scadenza-box {
-    width: 64px; height: 64px; border-radius: 12px;
-    background: var(--giallo); color: var(--bianco);
+    width: var(--misura-scadenza); height: var(--misura-scadenza); border-radius: var(--raggio-scadenza);
+    background: var(--colore-giallo); color: var(--colore-bianco);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     line-height: 1;
   }
-  .scadenza-box .mese { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
-  .scadenza-box .giorno { font-size: 26px; font-weight: 700; }
-  .scadenza-box.scaduto { background: var(--grigio); }
+  .scadenza-box .mese { font-size: var(--testo-scadenza-mese); font-weight: 500; margin-bottom: 3px; }
+  .scadenza-box .giorno { font-size: var(--testo-scadenza-giorno); font-weight: 700; }
+  .scadenza-box.scaduto { background: var(--colore-grigio); }
   .riga-tag { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
   .riga-tag:empty { display: none; }
   .tag {
     display: inline-block; border-radius: 999px; padding: 4px 10px;
-    font-size: 11px; font-weight: 600; line-height: 1.2; color: #fff;
+    font-size: var(--testo-tag); font-weight: 600; line-height: 1.2; color: #fff;
   }
-  .tag.versione-nuova { background: transparent; border: 1px solid var(--giallo); color: var(--giallo-scuro); padding: 3px 9px; cursor: pointer; }
-  .tag.pubblicato { background: transparent; border: 1px solid var(--verde); color: var(--verde); padding: 3px 9px; }
+  .tag.versione-nuova { background: transparent; border: 1px solid var(--colore-giallo); color: var(--colore-giallo-scuro); padding: 3px 9px; cursor: pointer; }
+  .tag.pubblicato { background: transparent; border: 1px solid var(--colore-verde); color: var(--colore-verde); padding: 3px 9px; }
   .avviso {
     display: inline-flex; align-items: center; gap: 8px;
-    background: var(--rosso-chiaro); color: var(--rosso);
-    font-size: 12px; font-weight: 500;
-    border-radius: 10px; padding: 7px 12px; line-height: 1.2;
+    background: var(--colore-rosso-chiaro); color: var(--colore-rosso);
+    font-size: var(--testo-avviso); font-weight: 500;
+    border-radius: var(--raggio-avviso); padding: 7px 12px; line-height: 1.2;
   }
-  .avviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--rosso); flex: none; }
+  .avviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--colore-rosso); flex: none; }
   .riga-tag .tag + .avviso, .riga-tag .avviso:first-child { margin-left: 0; }
   .riga-tag .tag ~ .avviso { margin-left: 10px; }
   @media (max-width: 720px) { .riga-tag .tag ~ .avviso { margin-left: 0; } }
-  .dettaglio-aperto { display: none; border-top: 1px solid var(--linee); margin-top: 18px; padding-top: 4px; }
+  .dettaglio-aperto { display: none; border-top: 1px solid var(--colore-linee); margin-top: 18px; padding-top: 4px; }
   .bando.aperto .dettaglio-aperto { display: block; }
 
   .link-veloci { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; }
-  .link-veloci a { color: var(--giallo-scuro); font-weight: 500; text-decoration: none; }
+  .link-veloci a { color: var(--colore-giallo-scuro); font-weight: 500; text-decoration: none; }
   .link-veloci a:hover { text-decoration: underline; }
-  .link-verificato { color: var(--verde); }
+  .link-verificato { color: var(--colore-verde); }
 
   /* versione nuova proposta dal robot (DEC-034) */
   .proposta {
-    margin-top: 14px; background: var(--bianco);
-    border: 1px solid var(--giallo); border-radius: 14px; padding: 14px 16px;
+    margin-top: 14px; background: var(--colore-bianco);
+    border: 1px solid var(--colore-giallo); border-radius: 14px; padding: 14px 16px;
   }
-  .proposta h4 { margin: 0 0 2px; font-family: var(--titoli); font-size: 14px; font-weight: 700; }
-  .proposta .quando { font-size: 12px; color: var(--giallo-scuro); font-weight: 500; }
+  .proposta h4 { margin: 0 0 2px; font-family: var(--font-titoli); font-size: 14px; font-weight: 700; }
+  .proposta .quando { font-size: 12px; color: var(--colore-giallo-scuro); font-weight: 500; }
   .proposta table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-  .proposta th { text-align: left; font-weight: 500; color: var(--grigio); padding: 4px 12px 4px 0; vertical-align: top; width: 9rem; }
+  .proposta th { text-align: left; font-weight: 500; color: var(--colore-grigio); padding: 4px 12px 4px 0; vertical-align: top; width: 9rem; }
   .proposta td { padding: 4px 0; vertical-align: top; overflow-wrap: anywhere; }
-  .proposta .prima { color: var(--grigio); text-decoration: line-through; }
+  .proposta .prima { color: var(--colore-grigio); text-decoration: line-through; }
   .proposta .azioni-proposta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   /* modulo di modifica */
@@ -246,50 +232,50 @@
   .azioni + .messaggio, .modulo .messaggio { margin-top: 8px; }
 
   /* card fonte */
-  .fonte-completa .ultimo-controllo { font-size: 12px; font-weight: 500; color: var(--giallo-scuro); }
+  .fonte-completa .ultimo-controllo { font-size: 12px; font-weight: 500; color: var(--colore-giallo-scuro); }
   .interruttore { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; padding-right: 8px; }
   .interruttore input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .interruttore .binario { order: -1; width: 40px; height: 24px; border-radius: 999px; background: var(--rosso); position: relative; transition: background 0.15s; flex: none; }
-  .interruttore .binario::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--bianco); transition: transform 0.15s; }
-  .interruttore input:checked + .binario { background: var(--verde); }
+  .interruttore .binario { order: -1; width: 40px; height: 24px; border-radius: 999px; background: var(--colore-rosso); position: relative; transition: background 0.15s; flex: none; }
+  .interruttore .binario::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--colore-bianco); transition: transform 0.15s; }
+  .interruttore input:checked + .binario { background: var(--colore-verde); }
   .interruttore input:checked + .binario::after { transform: translateX(16px); }
-  .interruttore input:focus-visible + .binario { outline: 2px solid var(--giallo); outline-offset: 2px; }
+  .interruttore input:focus-visible + .binario { outline: 2px solid var(--colore-giallo); outline-offset: 2px; }
   .interruttore input:disabled + .binario { opacity: 0.5; }
-  .interruttore .etichetta-stato { color: var(--grigio); min-width: 3.6em; }
-  .interruttore input:checked ~ .etichetta-stato { color: var(--nero); }
-  .stato-fisso { font-size: 13px; color: var(--grigio); }
+  .interruttore .etichetta-stato { color: var(--colore-grigio); min-width: 3.6em; }
+  .interruttore input:checked ~ .etichetta-stato { color: var(--colore-nero); }
+  .stato-fisso { font-size: 13px; color: var(--colore-grigio); }
 
   /* aggiungi email: si vede a colpo d'occhio */
   .aggiungi-email { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; vertical-align: middle; }
   .aggiungi-email .apri {
-    background: var(--rosso-chiaro); color: var(--rosso);
+    background: var(--colore-rosso-chiaro); color: var(--colore-rosso);
     font-size: 12px; font-weight: 600; border-radius: 10px; padding: 4px 10px;
   }
   .aggiungi-email .apri:hover { text-decoration: underline; }
   .aggiungi-email .riga { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .aggiungi-email input {
-    width: 13rem; background: var(--bianco); border: 1px solid var(--linee);
+    width: 13rem; background: var(--colore-bianco); border: 1px solid var(--colore-linee);
     border-radius: 8px; padding: 4px 8px; font-size: 13px;
   }
-  .aggiungi-email .salva { background: var(--giallo); color: var(--bianco); font-size: 12px; font-weight: 600; border-radius: 999px; padding: 5px 12px; }
+  .aggiungi-email .salva { background: var(--colore-giallo); color: var(--colore-bianco); font-size: 12px; font-weight: 600; border-radius: 999px; padding: 5px 12px; }
 
   /* card fonte candidata */
   .candidato { align-items: start; }
   .candidato .riassunto {
-    font-size: 14px; color: var(--nero); margin-top: 2px;
+    font-size: var(--testo-riassunto); color: var(--colore-nero); margin-top: 2px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .candidato .decisione { font-size: 13px; color: var(--giallo-scuro); font-weight: 500; }
+  .candidato .decisione { font-size: 13px; color: var(--colore-giallo-scuro); font-weight: 500; }
   .nota-scarto { margin-top: 14px; }
   .nota-scarto label { margin-top: 0; }
-  .battito { font-size: 12px; font-weight: 500; color: var(--giallo-scuro); }
+  .battito { font-size: 12px; font-weight: 500; color: var(--colore-giallo-scuro); }
   .battito:empty { display: none; }
   .battito .avviso { font-size: 12px; }
 
   /* pop-up della fonte candidata */
   #popup-candidato {
-    background: var(--crema); color: var(--nero);
-    border: none; border-radius: 20px; padding: 0;
+    background: var(--colore-crema); color: var(--colore-nero);
+    border: none; border-radius: var(--raggio-card); padding: 0;
     width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
     box-shadow: 0 20px 60px rgba(37,33,20,0.25);
   }
@@ -297,25 +283,25 @@
   #popup-candidato .chiudi {
     position: absolute; top: 14px; right: 14px; z-index: 1;
     width: 32px; height: 32px; border-radius: 50%;
-    background: var(--beige); color: var(--nero); font-size: 20px; line-height: 1;
+    background: var(--colore-beige); color: var(--colore-nero); font-size: 20px; line-height: 1;
   }
-  #popup-candidato .chiudi:hover { background: var(--linee); }
-  #popup-candidato .candidato { border-radius: 0; background: var(--crema); padding: 28px; grid-template-columns: 1fr; }
+  #popup-candidato .chiudi:hover { background: var(--colore-linee); }
+  #popup-candidato .candidato { border-radius: 0; background: var(--colore-crema); padding: 28px; grid-template-columns: 1fr; }
   #popup-candidato .candidato .testi { padding-right: 36px; }
   #popup-candidato .candidato .titolo { font-size: 20px; }
   #popup-candidato .azioni-card { margin-top: 18px; }
   .resoconto { font-size: 15px; line-height: 1.55; margin-top: 10px; }
-  .resoconto.vuoto { color: var(--grigio); font-style: italic; }
-  .etichetta { font-size: 11px; font-weight: 600; color: var(--grigio); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 14px; }
+  .resoconto.vuoto { color: var(--colore-grigio); font-style: italic; }
+  .etichetta { font-size: 11px; font-weight: 600; color: var(--colore-grigio); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 14px; }
   .motivo { font-size: 14px; }
 
   /* ---- login ---- */
   #login main { max-width: 420px; }
-  .scheda-login { background: var(--beige); border-radius: 20px; padding: 32px; }
-  .scheda-login h1 { font-family: var(--titoli); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; margin: 0; }
-  .scheda-login p { margin: 4px 0 8px; color: var(--giallo-scuro); font-weight: 500; font-size: 15px; }
+  .scheda-login { background: var(--colore-beige); border-radius: var(--raggio-card); padding: 32px; }
+  .scheda-login h1 { font-family: var(--font-titoli); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; margin: 0; }
+  .scheda-login p { margin: 4px 0 8px; color: var(--colore-giallo-scuro); font-weight: 500; font-size: 15px; }
   #login-bottone { width: 100%; margin-top: 20px; padding: 12px 18px; font-size: 14px; }
-  #login-errore { color: var(--rosso); font-size: 13px; margin-top: 10px; min-height: 1.2em; }
+  #login-errore { color: var(--colore-rosso); font-size: 13px; margin-top: 10px; min-height: 1.2em; }
 
   /* ---- telefono ---- */
   @media (max-width: 720px) {
@@ -350,7 +336,7 @@
 <div id="login">
   <header class="testata">
     <div class="marchio">
-      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="#FDFDFD"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="#FDFDFD"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="#FDFDFD"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="#FDFDFD"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="#FDFDFD"/></svg>
+      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="currentColor"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="currentColor"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="currentColor"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="currentColor"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="currentColor"/></svg>
       <span class="separatore"></span>
       <span class="nome-pannello">Admin · Revisione bandi</span>
     </div>
@@ -372,7 +358,7 @@
 <div id="app" hidden>
   <header class="testata">
     <div class="marchio">
-      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="#FDFDFD"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="#FDFDFD"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="#FDFDFD"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="#FDFDFD"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="#FDFDFD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="#FDFDFD"/></svg>
+      <svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="currentColor"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="currentColor"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="currentColor"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="currentColor"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="currentColor"/></svg>
       <span class="separatore"></span>
       <span class="nome-pannello">Admin · Revisione bandi</span>
     </div>
@@ -710,20 +696,20 @@ function disegnaElenco() {
 }
 
 // Arti ricavate dal testo libero "disciplines" (nessuna colonna nuova nel
-// database). Ordine e colori dal design: SPECIFICA.md, sezione 6.
+// database). I colori sono le variabili --arte-* di tokens.css (dal Figma).
 const ARTI = [
-  ["Musica", "#EC6B13", /music|musica|sound|suono|compos/],
-  ["Fotografia", "#4E4FAE", /photo|fotogra/],
-  ["Teatro", "#EE86B4", /theat|teatr|perform|danc|danza/],
-  ["Cinema", "#B65DAF", /film|cinem|video|movie|audiovis/],
-  ["Pittura", "#7DBE3C", /paint|pittur|visual art|arti visive|fine art/],
-  ["Illustrazione", "#58C3E0", /illustra|comic|fumett/],
-  ["Scrittura", "#C49CF0", /literat|letterat|writ|scrittur|poe|narrat/],
-  ["Architettura", "#2F7A35", /architet/],
-  ["Street Art", "#5ED3AE", /street art|mural/],
-  ["Scultura", "#6BDDD3", /sculpt|scult/],
-  ["Moda", "#F7C0C8", /fashion|moda\b/],
-  ["Stand Up Comedy", "#EF5A7A", /comedy|stand.?up|comico/],
+  ["Musica", "var(--arte-musica)", /music|musica|sound|suono|compos/],
+  ["Fotografia", "var(--arte-fotografia)", /photo|fotogra/],
+  ["Teatro", "var(--arte-teatro)", /theat|teatr|perform|danc|danza/],
+  ["Cinema", "var(--arte-cinema)", /film|cinem|video|movie|audiovis/],
+  ["Pittura", "var(--arte-pittura)", /paint|pittur|visual art|arti visive|fine art/],
+  ["Illustrazione", "var(--arte-illustrazione)", /illustra|comic|fumett/],
+  ["Scrittura", "var(--arte-scrittura)", /literat|letterat|writ|scrittur|poe|narrat/],
+  ["Architettura", "var(--arte-architettura)", /architet/],
+  ["Street Art", "var(--arte-street-art)", /street art|mural/],
+  ["Scultura", "var(--arte-scultura)", /sculpt|scult/],
+  ["Moda", "var(--arte-moda)", /fashion|moda\b/],
+  ["Stand Up Comedy", "var(--arte-stand-up-comedy)", /comedy|stand.?up|comico/],
 ];
 
 function artiDelBando(bando) {
