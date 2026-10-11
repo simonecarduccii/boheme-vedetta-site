@@ -1161,8 +1161,9 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   let inputDove = null;
   if (tabella === "sources") {
     inputDove = document.createElement("input");
-    inputDove.type = "url";
-    inputDove.placeholder = "Dove l'hai trovata? (link)";
+    // testo libero e facoltativo (Simone: niente link), es. "pagina contatti"
+    inputDove.type = "text";
+    inputDove.placeholder = "Dove l'hai trovata? (facoltativo)";
     campo.append(inputDove);
   }
   campo.append(salva);
@@ -1357,7 +1358,7 @@ const CAMPI_FONTE = [
   ["website_url", "Sito", "url"],
   ["opportunities_url", "Pagina bandi", "url"],
   ["contact_email", "Email di contatto", "email"],
-  ["contact_email_source", "Dove è stata trovata la mail (link)", "url"],
+  ["contact_email_source", "Dove è stata trovata la mail (facoltativo)", "text"],
   ["notes", "Note", "textarea"],
 ];
 
@@ -1373,7 +1374,11 @@ function creaRigaFonteCompleta(fonte) {
     paese ? escapeHtml(paese) : null,
     tipo ? escapeHtml(tipo) : null,
     fonte.contact_email ? `<a href="mailto:${attr(fonte.contact_email)}">${escapeHtml(fonte.contact_email)}</a>` : null,
-    fonte.contact_email && fonte.contact_email_source ? `<a href="${attr(fonte.contact_email_source)}" target="_blank" rel="noopener" title="Pagina dove è stata trovata la mail">dove l'ho trovata</a>` : null,
+    fonte.contact_email && fonte.contact_email_source
+      ? (/^https?:\/\//i.test(fonte.contact_email_source)
+        ? `<a href="${attr(fonte.contact_email_source)}" target="_blank" rel="noopener" title="Pagina dove è stata trovata la mail">dove l'ho trovata</a>`
+        : `trovata: ${escapeHtml(fonte.contact_email_source)}`)
+      : null,
   ]);
   const controllo = ultimoControlloFonte[fonte.id];
 
