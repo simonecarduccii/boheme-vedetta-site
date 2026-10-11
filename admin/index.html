@@ -506,6 +506,11 @@ function mostraApp(sessione) {
   loginEl.hidden = true;
   appEl.hidden = false;
   utenteCorrente.textContent = sessione.user.email;
+  // torna alla vista dove si era prima di un'eventuale ricarica
+  const zona = leggiMemoria("vedetta-zona");
+  const sub = leggiMemoria("vedetta-sub");
+  if (sub && sub !== "tutte") document.querySelector(`[data-sub-sources="${sub}"]`)?.click();
+  if (zona && zona !== "sources") document.querySelector(`[data-zona="${zona}"]`)?.click();
   aggiornaIntestazione();
   caricaBandi();
   caricaTutteFonti();
@@ -527,10 +532,51 @@ document.getElementById("login-bottone").addEventListener("click", async () => {
 
 document.getElementById("logout").addEventListener("click", () => supabase.auth.signOut());
 
+// Supabase riannuncia la sessione (SIGNED_IN, TOKEN_REFRESHED) ogni volta
+// che si torna sulla scheda del browser: il pannello si carica solo la
+// prima volta, altrimenti ridisegnava tutto, cancellava quello che si
+// stava scrivendo e tornava in cima alla pagina.
+let appAvviata = false;
 supabase.auth.onAuthStateChange((_evento, sessione) => {
-  if (sessione) mostraApp(sessione);
-  else mostraLogin();
+  if (sessione) {
+    if (appAvviata) {
+      utenteCorrente.textContent = sessione.user.email;
+      return;
+    }
+    appAvviata = true;
+    mostraApp(sessione);
+  } else {
+    appAvviata = false;
+    mostraLogin();
+  }
 });
+
+// Bozze e posizione della pagina restano anche se il browser ricarica la
+// scheda (succede sul telefono o dopo molto tempo): si salvano nella
+// memoria della scheda e si rimettono al loro posto.
+function leggiMemoria(chiave) {
+  try { return JSON.parse(sessionStorage.getItem(chiave)); } catch (_) { return null; }
+}
+function scriviMemoria(chiave, valore) {
+  try {
+    if (valore == null) sessionStorage.removeItem(chiave);
+    else sessionStorage.setItem(chiave, JSON.stringify(valore));
+  } catch (_) { /* memoria non disponibile: si perde solo la comodità */ }
+}
+let scorrimentoDaRipristinare = leggiMemoria("vedetta-scorrimento");
+addEventListener("scroll", () => {
+  if (scorrimentoDaRipristinare == null) scriviMemoria("vedetta-scorrimento", scrollY);
+}, { passive: true });
+function ripristinaScorrimento() {
+  if (scorrimentoDaRipristinare == null) return;
+  const y = scorrimentoDaRipristinare;
+  requestAnimationFrame(() => {
+    if (document.documentElement.scrollHeight >= y + innerHeight * 0.5) {
+      scrollTo(0, y);
+      scorrimentoDaRipristinare = null;
+    }
+  });
+}
 
 document.querySelectorAll("[data-filtro]").forEach((bottone) => {
   bottone.addEventListener("click", () => {
@@ -546,6 +592,7 @@ document.querySelectorAll("[data-zona]").forEach((bottone) => {
     document.querySelectorAll("[data-zona]").forEach((b) => b.classList.remove("attivo"));
     bottone.classList.add("attivo");
     zonaAttuale = bottone.dataset.zona;
+    scriviMemoria("vedetta-zona", zonaAttuale);
     zonaSources.hidden = zonaAttuale !== "sources";
     pilloleFonti.hidden = zonaAttuale !== "sources";
     zonaOpencall.hidden = zonaAttuale !== "opencall";
@@ -560,6 +607,7 @@ document.querySelectorAll("[data-sub-sources]").forEach((bottone) => {
     bottone.classList.add("attivo");
     const sub = bottone.dataset.subSources;
     subSourcesAttuale = sub;
+    scriviMemoria("vedetta-sub", sub);
     vistaTutteFonti.hidden = sub !== "tutte";
     vistaCandidate.hidden = sub !== "candidate";
     if (sub === "candidate" && !candidatiCaricati) caricaCandidate();
@@ -693,6 +741,7 @@ function disegnaElenco() {
   statoElenco.textContent = visibili.length ? "" : "Nessun bando in questa vista.";
   elencoEl.innerHTML = "";
   visibili.forEach((bando) => elencoEl.appendChild(creaRigaBando(bando)));
+  ripristinaScorrimento();
 }
 
 // Arti ricavate dal testo libero "disciplines" (nessuna colonna nuova nel
@@ -1123,9 +1172,26 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
   messaggio.className = "messaggio";
   box.appendChild(messaggio);
 
+  // Bozza: quello che si scrive resta anche se si cambia scheda per
+  // copiare il link e la pagina viene ricaricata.
+  const chiaveBozza = `vedetta-bozza-email:${tabella}:${riga.id}`;
+  function salvaBozza() {
+    scriviMemoria(chiaveBozza, { email: input.value, dove: inputDove ? inputDove.value : "" });
+  }
+  input.addEventListener("input", salvaBozza);
+  if (inputDove) inputDove.addEventListener("input", salvaBozza);
+  const bozza = leggiMemoria(chiaveBozza);
+  if (bozza) {
+    input.value = bozza.email || "";
+    if (inputDove) inputDove.value = bozza.dove || "";
+    apri.hidden = true;
+    campo.hidden = false;
+  }
+
   apri.addEventListener("click", () => {
     apri.hidden = true;
     campo.hidden = false;
+    scriviMemoria(chiaveBozza, { email: "", dove: "" });
     input.focus();
   });
   salva.addEventListener("click", async () => {
@@ -1146,6 +1212,7 @@ function creaAggiungiEmail(tabella, riga, dopoSalvataggio) {
       return;
     }
     Object.assign(riga, modifiche);
+    scriviMemoria(chiaveBozza, null);
     dopoSalvataggio();
   });
   return box;
@@ -1269,6 +1336,7 @@ function disegnaTutteFonti() {
   statoTutteFonti.textContent = visibili.length ? "" : "Nessuna fonte con questi filtri.";
   elencoTutteFontiEl.innerHTML = "";
   visibili.forEach((f) => elencoTutteFontiEl.appendChild(creaRigaFonteCompleta(f)));
+  ripristinaScorrimento();
 }
 
 function quandoControllata(iso) {
@@ -1501,6 +1569,7 @@ function disegnaCandidate() {
   statoCandidate.textContent = visibili.length ? "" : "Nessuna fonte in questa vista.";
   elencoCandidateEl.innerHTML = "";
   visibili.forEach((c) => elencoCandidateEl.appendChild(creaRigaCandidato(c)));
+  ripristinaScorrimento();
 }
 
 // Pop-up con il resoconto del sito: si apre cliccando sul nome di una
