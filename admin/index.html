@@ -226,10 +226,16 @@
   .proposta .azioni-proposta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   /* mail da inviare */
-  .mail .anteprima { font-size: var(--testo-testo); color: var(--colore-nero-caldo); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .mail .modulo textarea.corpo { min-height: 320px; line-height: 1.5; }
+  .mail .oggetto { font-size: var(--testo-testo); font-weight: 600; color: var(--colore-nero-caldo); }
+  .mail .anteprima { font-size: var(--testo-testo); color: var(--colore-grigio-testo); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mail.chiusa-stato:not(.aperta) > * { opacity: 0.75; }
+  .mail.aperta { align-items: start; }
+  .mail .modulo { margin-top: var(--spazio-piccolo); }
+  .mail .modulo textarea.corpo { min-height: 160px; line-height: 1.5; resize: vertical; overflow: hidden; }
+  .mail .nota-mail { margin: 12px 0 0; font-size: var(--testo-piccolo); color: var(--colore-giallo-scuro-testo); }
   .mail .conferma-invio { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: var(--testo-dettagli); }
-  .mail .stato-mail { font-size: 12px; font-weight: 500; color: var(--colore-giallo-scuro-testo); }
+  .tag.inviata { background: transparent; border: 1px solid var(--colore-verde); color: var(--colore-verde); padding: 3px 9px; }
+  .tag.scartata { background: transparent; border: 1px solid var(--colore-grigio-testo); color: var(--colore-grigio-testo); padding: 3px 9px; }
 
   /* modulo di modifica */
   .modulo .griglia { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
@@ -386,7 +392,7 @@
       <nav class="pillole" id="pillole-fonti">
         <button data-sub-sources="tutte" class="attivo">Tutte le fonti</button>
         <button data-sub-sources="candidate">Fonti candidate</button>
-        <button data-sub-sources="mail">Mail da inviare</button>
+        <button data-sub-sources="mail">Mail da inviare<span id="conta-mail"></span></button>
       </nav>
       <nav class="pillole" id="pillole-bandi" hidden>
         <button data-filtro="da-rivedere" class="attivo">Da rivedere</button>
@@ -432,8 +438,8 @@
 
       <div id="vista-mail" class="giu" hidden>
         <div class="riga-ricerca">
-          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="mail-cerca" placeholder="Cerca per ente o indirizzo" aria-label="Cerca per ente o indirizzo"></label>
-          <button class="filtro attivo" data-filtro-mail="draft">Da inviare</button>
+          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="mail-cerca" placeholder="Cerca per fonte o email" aria-label="Cerca per fonte o email"></label>
+          <button class="filtro attivo" data-filtro-mail="draft">Da rivedere</button>
           <button class="filtro" data-filtro-mail="sent">Inviate</button>
           <button class="filtro" data-filtro-mail="discarded">Scartate</button>
         </div>
@@ -539,6 +545,7 @@ function mostraApp(sessione) {
   aggiornaIntestazione();
   caricaBandi();
   caricaTutteFonti();
+  caricaMail();
 }
 
 function mostraLogin() {
@@ -663,9 +670,8 @@ function aggiornaIntestazione() {
   } else if (subSourcesAttuale === "mail") {
     titolo = "Mail da inviare";
     const daInviare = mailPreparate.filter((m) => m.status === "draft").length;
-    sotto = mailCaricate
-      ? `${daInviare} ${daInviare === 1 ? "preparata" : "preparate"} dal marketing: le rileggi e le mandi tu`
-      : "Preparate dal marketing: le rileggi e le mandi tu";
+    sotto = "Preparate dal marketing: le rivedi e le mandi tu" +
+      (mailCaricate ? ` · ${daInviare} da rivedere` : "");
   } else if (subSourcesAttuale === "candidate") {
     titolo = "Fonti candidate";
     sotto = "Trovate dallo Scout, da approvare o scartare";
@@ -1859,12 +1865,14 @@ async function caricaMail() {
 
 function disegnaMail() {
   aggiornaIntestazione();
+  const daRivedere = mailPreparate.filter((m) => m.status === "draft").length;
+  document.getElementById("conta-mail").textContent = daRivedere ? ` · ${daRivedere}` : "";
   const testo = mailCerca.value.trim().toLowerCase();
   const visibili = mailPreparate.filter((m) =>
     m.status === filtroMailAttuale &&
     (!testo || [m.organization_name, m.to_email].some((v) => v && v.toLowerCase().includes(testo)))
   );
-  const vuoto = { draft: "Nessuna mail da inviare.", sent: "Nessuna mail inviata.", discarded: "Nessuna mail scartata." };
+  const vuoto = { draft: "Nessuna mail da rivedere.", sent: "Nessuna mail inviata.", discarded: "Nessuna mail scartata." };
   statoMailEl.textContent = visibili.length ? "" : vuoto[filtroMailAttuale];
   elencoMailEl.innerHTML = "";
   visibili.forEach((m) => elencoMailEl.appendChild(creaRigaMail(m)));
@@ -1877,51 +1885,20 @@ function linkMail(m) {
     "&body=" + encodeURIComponent(m.body || "");
 }
 
-const CAMPI_MAIL = [
-  ["to_email", "A", "email"],
-  ["subject", "Oggetto", "text"],
-  ["body", "Testo", "textarea"],
-];
+function dataBreve(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" });
+}
 
+// Design: SPECIFICA.md §8 (Figma "Fonti · Mail da inviare"). La card chiusa
+// mostra oggetto e anteprima; "Apri e rivedi" la apre con i campi.
 function creaRigaMail(m) {
   const li = document.createElement("li");
-  li.className = "card mail";
+  li.className = "card mail" + (m.status !== "draft" ? " chiusa-stato" : "");
   const chiaveBozza = `vedetta-bozza-mail:${m.id}`;
   const bozza = leggiMemoria(chiaveBozza);
-
-  const testi = document.createElement("div");
-  testi.className = "testi";
-  const titolo = document.createElement("button");
-  titolo.type = "button";
-  titolo.className = "titolo";
-  titolo.title = "Apri la mail";
-  titolo.textContent = m.organization_name;
-  testi.appendChild(titolo);
-  const dettagli = document.createElement("div");
-  dettagli.className = "dettagli";
-  dettagli.innerHTML = rigaPunti([
-    `a ${escapeHtml(m.to_email)}`,
-    m.language === "en" ? "in inglese" : null,
-    m.created_at ? `preparata il ${escapeHtml(formattaData(m.created_at))}` : null,
-  ]);
-  testi.appendChild(dettagli);
-  const oggetto = document.createElement("div");
-  oggetto.className = "anteprima";
-  oggetto.textContent = m.subject;
-  testi.appendChild(oggetto);
-  if (m.status !== "draft") {
-    const stato = document.createElement("div");
-    stato.className = "stato-mail";
-    stato.textContent = m.status === "sent"
-      ? `Inviata${m.sent_at ? " il " + formattaData(m.sent_at) : ""}`
-      : "Scartata";
-    testi.appendChild(stato);
-  }
-  li.appendChild(testi);
-
-  const azioniCard = document.createElement("div");
-  azioniCard.className = "azioni-card";
-  li.appendChild(azioniCard);
+  let aperta = m.status === "draft" && !!bozza;
 
   const messaggio = document.createElement("div");
   messaggio.className = "messaggio pieno";
@@ -1938,145 +1915,201 @@ function creaRigaMail(m) {
     }
     Object.assign(m, patch);
     scriviMemoria(chiaveBozza, null);
-    if (testoOk) {
-      messaggio.className = "messaggio pieno ok";
-      messaggio.textContent = testoOk;
-    }
+    messaggio.className = "messaggio pieno ok";
+    messaggio.textContent = testoOk || "";
     return true;
   }
 
-  // Testo completo, modificabile prima dell'invio.
-  const modulo = document.createElement("div");
-  modulo.className = "modulo pieno";
-  modulo.hidden = !bozza;
-  const griglia = document.createElement("div");
-  griglia.className = "griglia";
-  const input = {};
-  CAMPI_MAIL.forEach(([campo, etichetta, tipo]) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "campo-largo";
-    const label = document.createElement("label");
-    label.textContent = etichetta;
-    const el = document.createElement(tipo === "textarea" ? "textarea" : "input");
-    if (tipo === "textarea") el.className = "corpo";
-    else el.type = tipo;
-    el.value = (bozza && bozza[campo] != null) ? bozza[campo] : (m[campo] || "");
-    el.readOnly = m.status !== "draft";
-    el.addEventListener("input", () => {
-      const valori = {};
-      CAMPI_MAIL.forEach(([c]) => { valori[c] = input[c].value; });
-      scriviMemoria(chiaveBozza, valori);
-    });
-    input[campo] = el;
-    wrapper.append(label, el);
-    griglia.appendChild(wrapper);
-  });
-  modulo.appendChild(griglia);
-  li.appendChild(modulo);
-  titolo.addEventListener("click", () => { modulo.hidden = !modulo.hidden; });
-
-  function modifiche() {
-    const cambi = {};
-    CAMPI_MAIL.forEach(([campo]) => {
-      const valore = input[campo].value.trim();
-      if (valore !== (m[campo] || "")) cambi[campo] = valore;
-    });
-    return cambi;
-  }
-  function controlla(cambi) {
-    const a = cambi.to_email ?? m.to_email;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a || "")) return "Scrivi un indirizzo email valido.";
-    if (!(cambi.subject ?? m.subject)) return "Manca l'oggetto.";
-    if (!(cambi.body ?? m.body)) return "Manca il testo.";
-    return null;
+  function bottone(testo, classe, azione) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = classe;
+    b.textContent = testo;
+    b.addEventListener("click", azione);
+    return b;
   }
 
-  if (m.status === "draft") {
-    const conferma = document.createElement("div");
-    conferma.className = "conferma-invio pieno";
-    conferma.hidden = true;
-    conferma.innerHTML = "<span>Si è aperta la mail in Mail: controlla che parta da info@bohememag.it e premi Invia. Poi torna qui.</span>";
-    const si = document.createElement("button");
-    si.type = "button";
-    si.className = "btn-primario";
-    si.textContent = "L'ho inviata";
-    si.addEventListener("click", async () => {
-      if (await salva({ status: "sent", sent_at: new Date().toISOString() })) disegnaMail();
-    });
-    const no = document.createElement("button");
-    no.type = "button";
-    no.className = "btn-link";
-    no.textContent = "Non ancora";
-    no.addEventListener("click", () => { conferma.hidden = true; });
-    conferma.append(si, no);
-
-    const invia = document.createElement("button");
-    invia.type = "button";
-    invia.className = "btn-primario";
-    invia.textContent = "Invia";
-    invia.title = "Apre la mail già scritta nella tua app di posta";
-    invia.addEventListener("click", async () => {
-      const cambi = modifiche();
-      const problema = controlla(cambi);
-      if (problema) {
-        modulo.hidden = false;
-        messaggio.className = "messaggio pieno errore";
-        messaggio.textContent = problema;
-        return;
+  function intestazione(conOggetto) {
+    const testi = document.createElement("div");
+    testi.className = "testi";
+    const titolo = document.createElement("div");
+    titolo.className = "titolo";
+    titolo.textContent = m.organization_name;
+    const dettagli = document.createElement("div");
+    dettagli.className = "dettagli";
+    dettagli.innerHTML = rigaPunti([
+      conOggetto ? escapeHtml(m.to_email) : null,
+      m.language === "en" ? "in inglese" : null,
+      m.created_at ? `preparata${conOggetto ? "" : " dal marketing"} il ${escapeHtml(dataBreve(m.created_at))}` : null,
+    ]);
+    testi.append(titolo, dettagli);
+    if (conOggetto) {
+      const oggetto = document.createElement("div");
+      oggetto.className = "oggetto";
+      oggetto.textContent = "Oggetto: " + (m.subject || "");
+      testi.appendChild(oggetto);
+      if (m.status === "draft") {
+        const anteprima = document.createElement("div");
+        anteprima.className = "anteprima";
+        anteprima.textContent = (m.body || "").replace(/\s+/g, " ");
+        testi.appendChild(anteprima);
+      } else {
+        const stato = document.createElement("span");
+        stato.className = m.status === "sent" ? "tag inviata" : "tag scartata";
+        if (m.status === "sent") {
+          const d = m.sent_at ? new Date(m.sent_at) : null;
+          stato.textContent = d && !isNaN(d.getTime())
+            ? `Inviata il ${dataBreve(m.sent_at)} alle ${d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`
+            : "Inviata";
+        } else stato.textContent = "Scartata";
+        const riga = document.createElement("div");
+        riga.className = "riga-tag";
+        riga.appendChild(stato);
+        testi.appendChild(riga);
       }
-      // le correzioni si salvano prima, così la mail aperta è quella giusta
-      if (Object.keys(cambi).length && !(await salva(cambi))) return;
-      messaggio.textContent = "";
-      location.href = linkMail(m);
-      conferma.hidden = false;
-    });
-
-    const salvaBottone = document.createElement("button");
-    salvaBottone.type = "button";
-    salvaBottone.className = "btn-secondario";
-    salvaBottone.textContent = "Salva modifiche";
-    salvaBottone.addEventListener("click", async () => {
-      const cambi = modifiche();
-      if (!Object.keys(cambi).length) {
-        messaggio.className = "messaggio pieno";
-        messaggio.textContent = "Nessuna modifica da salvare.";
-        return;
-      }
-      const problema = controlla(cambi);
-      if (problema) {
-        messaggio.className = "messaggio pieno errore";
-        messaggio.textContent = problema;
-        return;
-      }
-      if (await salva(cambi, "Modifiche salvate.")) oggetto.textContent = m.subject;
-    });
-    const azioniModulo = document.createElement("div");
-    azioniModulo.className = "azioni";
-    azioniModulo.appendChild(salvaBottone);
-    modulo.appendChild(azioniModulo);
-
-    const scarta = document.createElement("button");
-    scarta.type = "button";
-    scarta.className = "btn-link";
-    scarta.textContent = "Scarta";
-    scarta.addEventListener("click", async () => {
-      if (await salva({ status: "discarded" })) disegnaMail();
-    });
-    azioniCard.append(invia, scarta);
-    li.appendChild(conferma);
-  } else {
-    const rimetti = document.createElement("button");
-    rimetti.type = "button";
-    rimetti.className = "btn-link";
-    rimetti.textContent = m.status === "sent" ? "Non è partita" : "Rimetti da inviare";
-    rimetti.addEventListener("click", async () => {
-      if (await salva({ status: "draft", sent_at: null })) disegnaMail();
-    });
-    azioniCard.appendChild(rimetti);
+    }
+    return testi;
   }
 
-  li.appendChild(messaggio);
+  function disegna() {
+    li.innerHTML = "";
+    li.classList.toggle("aperta", aperta);
+    if (!aperta) {
+      li.appendChild(intestazione(true));
+      const azioni = document.createElement("div");
+      azioni.className = "azioni-card";
+      if (m.status === "draft") {
+        azioni.append(
+          bottone("Apri e rivedi", "btn-secondario", () => { aperta = true; disegna(); }),
+          bottone("Scarta", "btn-link", async () => { if (await salva({ status: "discarded" })) disegnaMail(); }),
+        );
+      } else {
+        azioni.appendChild(bottone("Vedi mail", "btn-link", () => { aperta = true; disegna(); }));
+      }
+      li.append(azioni, messaggio);
+      return;
+    }
+    disegnaAperta();
+  }
+
+  function disegnaAperta() {
+    const modificabile = m.status === "draft";
+    li.appendChild(intestazione(false));
+    const modulo = document.createElement("div");
+    modulo.className = "modulo pieno";
+    const griglia = document.createElement("div");
+    griglia.className = "griglia";
+    const input = {};
+    [["to_email", "A", "email"], ["subject", "Oggetto", "text"], ["body", "Testo della mail", "textarea"]]
+      .forEach(([campo, etichetta, tipo]) => {
+        const wrapper = document.createElement("div");
+        if (tipo === "textarea") wrapper.className = "campo-largo";
+        const label = document.createElement("label");
+        label.textContent = etichetta;
+        const el = document.createElement(tipo === "textarea" ? "textarea" : "input");
+        if (tipo === "textarea") el.className = "corpo";
+        else el.type = tipo;
+        el.value = (modificabile && bozza && bozza[campo] != null) ? bozza[campo] : (m[campo] || "");
+        el.readOnly = !modificabile;
+        el.addEventListener("input", () => {
+          if (tipo === "textarea") cresci(el);
+          const valori = {};
+          Object.keys(input).forEach((c) => { valori[c] = input[c].value; });
+          scriviMemoria(chiaveBozza, valori);
+        });
+        input[campo] = el;
+        wrapper.append(label, el);
+        griglia.appendChild(wrapper);
+      });
+    modulo.appendChild(griglia);
+    li.appendChild(modulo);
+    requestAnimationFrame(() => cresci(input.body));
+
+    function modifiche() {
+      const cambi = {};
+      Object.keys(input).forEach((campo) => {
+        const valore = input[campo].value.trim();
+        if (valore !== (m[campo] || "")) cambi[campo] = valore;
+      });
+      return cambi;
+    }
+    function controlla(cambi) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cambi.to_email ?? m.to_email ?? "")) return "Scrivi un indirizzo email valido.";
+      if (!(cambi.subject ?? m.subject)) return "Manca l'oggetto.";
+      if (!(cambi.body ?? m.body)) return "Manca il testo.";
+      return null;
+    }
+    function errore(testo) {
+      messaggio.className = "messaggio pieno errore";
+      messaggio.textContent = testo;
+    }
+
+    const azioni = document.createElement("div");
+    azioni.className = "azioni";
+    const chiudi = bottone("Chiudi", "btn-link", () => { aperta = false; messaggio.textContent = ""; disegna(); });
+    if (modificabile) {
+      const conferma = document.createElement("div");
+      conferma.className = "conferma-invio";
+      conferma.hidden = true;
+      const testoConferma = document.createElement("span");
+      testoConferma.textContent = "Si è aperta in Mail: controlla che parta da info@bohememag.it e premi Invia. Poi torna qui.";
+      conferma.append(
+        testoConferma,
+        bottone("L'ho inviata", "btn-primario", async () => {
+          if (await salva({ status: "sent", sent_at: new Date().toISOString() })) disegnaMail();
+        }),
+        bottone("Non ancora", "btn-link", () => { conferma.hidden = true; }),
+      );
+      azioni.append(
+        bottone("Invia ora", "btn-primario", async () => {
+          const cambi = modifiche();
+          const problema = controlla(cambi);
+          if (problema) return errore(problema);
+          // le correzioni si salvano prima, così si apre la versione giusta
+          if (Object.keys(cambi).length && !(await salva(cambi))) return;
+          messaggio.textContent = "";
+          location.href = linkMail(m);
+          conferma.hidden = false;
+        }),
+        bottone("Salva modifiche", "btn-secondario", async () => {
+          const cambi = modifiche();
+          if (!Object.keys(cambi).length) {
+            messaggio.className = "messaggio pieno";
+            messaggio.textContent = "Nessuna modifica da salvare.";
+            return;
+          }
+          const problema = controlla(cambi);
+          if (problema) return errore(problema);
+          await salva(cambi, "Modifiche salvate.");
+        }),
+        chiudi,
+        bottone("Scarta", "btn-link", async () => { if (await salva({ status: "discarded" })) disegnaMail(); }),
+      );
+      const nota = document.createElement("p");
+      nota.className = "nota-mail";
+      nota.textContent = "\"Invia ora\" apre la mail già scritta in Mail: parte solo quando premi Invia lì. Le modifiche salvate restano anche se chiudi.";
+      modulo.append(azioni, nota, conferma);
+    } else {
+      azioni.append(
+        chiudi,
+        bottone(m.status === "sent" ? "Non è partita" : "Rimetti da rivedere", "btn-link", async () => {
+          if (await salva({ status: "draft", sent_at: null })) disegnaMail();
+        }),
+      );
+      modulo.appendChild(azioni);
+    }
+    li.appendChild(messaggio);
+  }
+
+  disegna();
   return li;
+}
+
+// L'area di testo cresce col testo invece di avere la barra di scorrimento.
+function cresci(el) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + 2 + "px";
 }
 
 // Messaggi d'errore del database (in inglese) resi in italiano.
