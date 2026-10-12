@@ -233,6 +233,10 @@
   .mail .modulo { margin-top: var(--spazio-piccolo); }
   .mail .modulo textarea.corpo { min-height: 160px; line-height: 1.5; resize: vertical; overflow: hidden; }
   .mail .nota-mail { margin: 12px 0 0; font-size: var(--testo-piccolo); color: var(--colore-giallo-scuro-testo); }
+  .mail .modulo .azioni { gap: var(--spazio-medio); }
+  .mail .link-azioni { display: flex; gap: var(--spazio-medio); align-items: center; }
+  .mail .link-azioni .btn-link { padding: 10px 0; }
+  @media (max-width: 420px) { .mail .link-azioni { flex-basis: 100%; } }
   .mail .conferma-invio { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: var(--testo-dettagli); }
   .tag.inviata { background: transparent; border: 1px solid var(--colore-verde); color: var(--colore-verde); padding: 3px 9px; }
   .tag.scartata { background: transparent; border: 1px solid var(--colore-grigio-testo); color: var(--colore-grigio-testo); padding: 3px 9px; }
@@ -2060,8 +2064,13 @@ function creaRigaMail(m) {
         }),
         bottone("Non ancora", "btn-link", () => { conferma.hidden = true; }),
       );
-      azioni.append(
-        bottone("Invia ora", "btn-primario", async () => {
+      const linkAzioni = document.createElement("span");
+      linkAzioni.className = "link-azioni";
+      linkAzioni.append(
+        chiudi,
+        bottone("Scarta", "btn-link", async () => { if (await salva({ status: "discarded" })) disegnaMail(); }),
+      );
+      const invia = bottone("Invia ora", "btn-primario", async () => {
           const cambi = modifiche();
           const problema = controlla(cambi);
           if (problema) return errore(problema);
@@ -2070,7 +2079,12 @@ function creaRigaMail(m) {
           messaggio.textContent = "";
           location.href = linkMail(m);
           conferma.hidden = false;
-        }),
+          // ora l'unico bottone pieno è "L'ho inviata"
+          invia.className = "btn-secondario";
+          invia.textContent = "Riapri in Mail";
+        });
+      azioni.append(
+        invia,
         bottone("Salva modifiche", "btn-secondario", async () => {
           const cambi = modifiche();
           if (!Object.keys(cambi).length) {
@@ -2082,15 +2096,17 @@ function creaRigaMail(m) {
           if (problema) return errore(problema);
           await salva(cambi, "Modifiche salvate.");
         }),
-        chiudi,
-        bottone("Scarta", "btn-link", async () => { if (await salva({ status: "discarded" })) disegnaMail(); }),
+        linkAzioni,
       );
       const nota = document.createElement("p");
       nota.className = "nota-mail";
       nota.textContent = "\"Invia ora\" apre la mail già scritta in Mail: parte solo quando premi Invia lì. Le modifiche salvate restano anche se chiudi.";
       modulo.append(azioni, nota, conferma);
     } else {
-      azioni.append(
+      const linkAzioni = document.createElement("span");
+      linkAzioni.className = "link-azioni";
+      azioni.appendChild(linkAzioni);
+      linkAzioni.append(
         chiudi,
         bottone(m.status === "sent" ? "Non è partita" : "Rimetti da rivedere", "btn-link", async () => {
           if (await salva({ status: "draft", sent_at: null })) disegnaMail();
