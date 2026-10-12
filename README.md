@@ -1,8 +1,12 @@
-# boheme-vedetta-site
+# opencalls (ex boheme-vedetta-site)
 
 > Il sito pubblico di Bohème Vedetta: repository pubblico dedicato,
 > pubblicato gratis con GitHub Pages su
-> `https://simonecarduccii.github.io/boheme-vedetta-site/`.
+> `https://bohememag.it/opencalls/` (pannello: `https://bohememag.it/opencalls/admin/`).
+> Dal 2026-10-12: repository rinominato da `boheme-vedetta-site` a
+> `opencalls`; il dominio `bohememag.it` sta nel repository
+> `simonecarduccii.github.io` (file `CNAME`), che contiene anche i
+> rimandi dal vecchio indirizzo.
 >
 > Pubblico apposta — dentro non c'è nessun segreto, l'accesso al
 > pannello è protetto dal login (Supabase), non dal fatto che il
