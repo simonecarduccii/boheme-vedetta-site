@@ -1526,7 +1526,9 @@ const ETICHETTA_REGIONE = {
   Italy: "Italia", Europe: "Europa", International: "Internazionale",
   Worldwide: "Internazionale", Global: "Internazionale",
 };
-// Se Scout scrive gli stati in inglese, il pannello li tratta come quelli italiani.
+// Database in inglese (scelta di Simone, 12/10): il pannello legge sia i
+// valori inglesi sia quelli italiani di prima e salva quelli inglesi.
+const STATO_CANDIDATO_EN = { da_valutare: "pending", approvato: "approved", scartato: "rejected" };
 const STATO_CANDIDATO_IT = {
   pending: "da_valutare", to_review: "da_valutare", new: "da_valutare",
   approved: "approvato", accepted: "approvato",
@@ -1552,7 +1554,7 @@ async function caricaCandidate() {
 
   const [candidatiRisposta, battitoRisposta] = await Promise.all([
     supabase.from("source_candidates").select("*").order("found_at", { ascending: false }),
-    supabase.from("vedetta_runs").select("run_at, summary, note").eq("subagente", "scoperta_fonti").order("run_at", { ascending: false }).limit(1),
+    supabase.from("vedetta_runs").select("run_at, summary, note").in("subagente", ["scoperta_fonti", "source_discovery"]).order("run_at", { ascending: false }).limit(1),
   ]);
 
   if (candidatiRisposta.error) {
@@ -1687,7 +1689,13 @@ function creaRigaCandidato(candidato, nelPopup = false) {
   async function decidi(patch, testoOk) {
     messaggio.className = "messaggio";
     messaggio.textContent = "Salvo…";
-    const { error } = await supabase.from("source_candidates").update(patch).eq("id", candidato.id);
+    // Salva il valore inglese; finché il database accetta solo quelli
+    // italiani (vincolo source_candidates_status_check) ripiega su questi.
+    const inInglese = patch.status ? { ...patch, status: STATO_CANDIDATO_EN[patch.status] || patch.status } : patch;
+    let { error } = await supabase.from("source_candidates").update(inInglese).eq("id", candidato.id);
+    if (error && error.code === "23514" && inInglese !== patch) {
+      ({ error } = await supabase.from("source_candidates").update(patch).eq("id", candidato.id));
+    }
     if (error) {
       messaggio.className = "messaggio errore";
       messaggio.textContent = "Errore: " + inItaliano(error);
