@@ -225,6 +225,12 @@
   .proposta .prima { color: var(--colore-grigio-testo); text-decoration: line-through; }
   .proposta .azioni-proposta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+  /* mail da inviare */
+  .mail .anteprima { font-size: var(--testo-testo); color: var(--colore-nero-caldo); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .mail .modulo textarea.corpo { min-height: 320px; line-height: 1.5; }
+  .mail .conferma-invio { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: var(--testo-dettagli); }
+  .mail .stato-mail { font-size: 12px; font-weight: 500; color: var(--colore-giallo-scuro-testo); }
+
   /* modulo di modifica */
   .modulo .griglia { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
   .modulo .griglia .campo-largo { grid-column: 1 / -1; }
@@ -380,6 +386,7 @@
       <nav class="pillole" id="pillole-fonti">
         <button data-sub-sources="tutte" class="attivo">Tutte le fonti</button>
         <button data-sub-sources="candidate">Fonti candidate</button>
+        <button data-sub-sources="mail">Mail da inviare</button>
       </nav>
       <nav class="pillole" id="pillole-bandi" hidden>
         <button data-filtro="da-rivedere" class="attivo">Da rivedere</button>
@@ -421,6 +428,17 @@
           <button class="chiudi" type="button" aria-label="Chiudi">×</button>
           <div id="popup-contenuto"></div>
         </dialog>
+      </div>
+
+      <div id="vista-mail" class="giu" hidden>
+        <div class="riga-ricerca">
+          <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="mail-cerca" placeholder="Cerca per ente o indirizzo" aria-label="Cerca per ente o indirizzo"></label>
+          <button class="filtro attivo" data-filtro-mail="draft">Da inviare</button>
+          <button class="filtro" data-filtro-mail="sent">Inviate</button>
+          <button class="filtro" data-filtro-mail="discarded">Scartate</button>
+        </div>
+        <div id="stato-mail" class="stato-elenco"></div>
+        <ul id="elenco-mail" class="elenco"></ul>
       </div>
     </div>
 
@@ -475,6 +493,10 @@ const battitoCandidate = document.getElementById("battito-candidate");
 const statoCandidate = document.getElementById("stato-candidate");
 const elencoCandidateEl = document.getElementById("elenco-candidate");
 const zonaSources = document.getElementById("zona-sources");
+const vistaMail = document.getElementById("vista-mail");
+const statoMailEl = document.getElementById("stato-mail");
+const elencoMailEl = document.getElementById("elenco-mail");
+const mailCerca = document.getElementById("mail-cerca");
 const zonaOpencall = document.getElementById("zona-opencall");
 const vistaTutteFonti = document.getElementById("vista-tutte-fonti");
 const statoTutteFonti = document.getElementById("stato-tutte-fonti");
@@ -501,6 +523,9 @@ let candidati = [];
 let candidatiCaricati = false;
 let tutteLeFonti = [];
 let tutteFontiCaricate = false;
+let filtroMailAttuale = "draft";
+let mailPreparate = [];
+let mailCaricate = false;
 
 function mostraApp(sessione) {
   loginEl.hidden = true;
@@ -610,7 +635,9 @@ document.querySelectorAll("[data-sub-sources]").forEach((bottone) => {
     scriviMemoria("vedetta-sub", sub);
     vistaTutteFonti.hidden = sub !== "tutte";
     vistaCandidate.hidden = sub !== "candidate";
+    vistaMail.hidden = sub !== "mail";
     if (sub === "candidate" && !candidatiCaricati) caricaCandidate();
+    if (sub === "mail" && !mailCaricate) caricaMail();
     if (sub === "tutte" && !tutteFontiCaricate) caricaTutteFonti();
     aggiornaIntestazione();
   });
@@ -621,6 +648,7 @@ document.querySelectorAll("[data-sub-sources]").forEach((bottone) => {
 });
 bandiCerca.addEventListener("input", disegnaElenco);
 candidateCerca.addEventListener("input", disegnaCandidate);
+mailCerca.addEventListener("input", disegnaMail);
 
 // Titolo e sottotitolo cambiano con la vista (design A · Crema).
 function aggiornaIntestazione() {
@@ -632,6 +660,12 @@ function aggiornaIntestazione() {
       const nuove = bandi.filter((b) => b.pending_update).length;
       sotto = `${daRivedere} da rivedere · ${nuove} con una versione nuova`;
     }
+  } else if (subSourcesAttuale === "mail") {
+    titolo = "Mail da inviare";
+    const daInviare = mailPreparate.filter((m) => m.status === "draft").length;
+    sotto = mailCaricate
+      ? `${daInviare} ${daInviare === 1 ? "preparata" : "preparate"} dal marketing: le rileggi e le mandi tu`
+      : "Preparate dal marketing: le rileggi e le mandi tu";
   } else if (subSourcesAttuale === "candidate") {
     titolo = "Fonti candidate";
     sotto = "Trovate dallo Scout, da approvare o scartare";
@@ -1783,6 +1817,262 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     decisione.textContent =
       `${candidato.status === "approvato" ? "Approvata" : "Scartata"} il ${formattaData(candidato.decided_at)}` +
       (candidato.decided_note ? ` — ${candidato.decided_note}` : "");
+  }
+
+  li.appendChild(messaggio);
+  return li;
+}
+
+// ---- mail da inviare (Simone, 12/10) --------------------------------------
+// Il marketing prepara le mail agli enti in outreach_emails; qui Simone le
+// rilegge, le corregge e le apre nella sua app di posta già scritte. Il
+// pannello non spedisce niente: "Invia" apre Mail, e la mail parte solo
+// quando Simone preme Invia lì. Poi la segna come inviata.
+
+document.querySelectorAll("[data-filtro-mail]").forEach((bottone) => {
+  bottone.addEventListener("click", () => {
+    document.querySelectorAll("[data-filtro-mail]").forEach((b) => b.classList.remove("attivo"));
+    bottone.classList.add("attivo");
+    filtroMailAttuale = bottone.dataset.filtroMail;
+    disegnaMail();
+  });
+});
+
+async function caricaMail() {
+  statoMailEl.textContent = "Carico le mail…";
+  elencoMailEl.innerHTML = "";
+  const { data, error } = await supabase
+    .from("outreach_emails")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) {
+    // tabella non ancora creata: per il pannello è come non avere mail
+    statoMailEl.textContent = /outreach_emails|PGRST205|42P01/.test(`${error.code} ${error.message}`)
+      ? "Nessuna mail preparata per ora."
+      : "Non riesco a leggere le mail: " + inItaliano(error);
+    return;
+  }
+  mailPreparate = data;
+  mailCaricate = true;
+  disegnaMail();
+}
+
+function disegnaMail() {
+  aggiornaIntestazione();
+  const testo = mailCerca.value.trim().toLowerCase();
+  const visibili = mailPreparate.filter((m) =>
+    m.status === filtroMailAttuale &&
+    (!testo || [m.organization_name, m.to_email].some((v) => v && v.toLowerCase().includes(testo)))
+  );
+  const vuoto = { draft: "Nessuna mail da inviare.", sent: "Nessuna mail inviata.", discarded: "Nessuna mail scartata." };
+  statoMailEl.textContent = visibili.length ? "" : vuoto[filtroMailAttuale];
+  elencoMailEl.innerHTML = "";
+  visibili.forEach((m) => elencoMailEl.appendChild(creaRigaMail(m)));
+  ripristinaScorrimento();
+}
+
+function linkMail(m) {
+  return "mailto:" + encodeURIComponent(m.to_email).replace(/%40/g, "@") +
+    "?subject=" + encodeURIComponent(m.subject || "") +
+    "&body=" + encodeURIComponent(m.body || "");
+}
+
+const CAMPI_MAIL = [
+  ["to_email", "A", "email"],
+  ["subject", "Oggetto", "text"],
+  ["body", "Testo", "textarea"],
+];
+
+function creaRigaMail(m) {
+  const li = document.createElement("li");
+  li.className = "card mail";
+  const chiaveBozza = `vedetta-bozza-mail:${m.id}`;
+  const bozza = leggiMemoria(chiaveBozza);
+
+  const testi = document.createElement("div");
+  testi.className = "testi";
+  const titolo = document.createElement("button");
+  titolo.type = "button";
+  titolo.className = "titolo";
+  titolo.title = "Apri la mail";
+  titolo.textContent = m.organization_name;
+  testi.appendChild(titolo);
+  const dettagli = document.createElement("div");
+  dettagli.className = "dettagli";
+  dettagli.innerHTML = rigaPunti([
+    `a ${escapeHtml(m.to_email)}`,
+    m.language === "en" ? "in inglese" : null,
+    m.created_at ? `preparata il ${escapeHtml(formattaData(m.created_at))}` : null,
+  ]);
+  testi.appendChild(dettagli);
+  const oggetto = document.createElement("div");
+  oggetto.className = "anteprima";
+  oggetto.textContent = m.subject;
+  testi.appendChild(oggetto);
+  if (m.status !== "draft") {
+    const stato = document.createElement("div");
+    stato.className = "stato-mail";
+    stato.textContent = m.status === "sent"
+      ? `Inviata${m.sent_at ? " il " + formattaData(m.sent_at) : ""}`
+      : "Scartata";
+    testi.appendChild(stato);
+  }
+  li.appendChild(testi);
+
+  const azioniCard = document.createElement("div");
+  azioniCard.className = "azioni-card";
+  li.appendChild(azioniCard);
+
+  const messaggio = document.createElement("div");
+  messaggio.className = "messaggio pieno";
+
+  async function salva(patch, testoOk) {
+    messaggio.className = "messaggio pieno";
+    messaggio.textContent = "Salvo…";
+    const { error } = await supabase.from("outreach_emails")
+      .update({ ...patch, updated_at: new Date().toISOString() }).eq("id", m.id);
+    if (error) {
+      messaggio.className = "messaggio pieno errore";
+      messaggio.textContent = "Errore: " + inItaliano(error);
+      return false;
+    }
+    Object.assign(m, patch);
+    scriviMemoria(chiaveBozza, null);
+    if (testoOk) {
+      messaggio.className = "messaggio pieno ok";
+      messaggio.textContent = testoOk;
+    }
+    return true;
+  }
+
+  // Testo completo, modificabile prima dell'invio.
+  const modulo = document.createElement("div");
+  modulo.className = "modulo pieno";
+  modulo.hidden = !bozza;
+  const griglia = document.createElement("div");
+  griglia.className = "griglia";
+  const input = {};
+  CAMPI_MAIL.forEach(([campo, etichetta, tipo]) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "campo-largo";
+    const label = document.createElement("label");
+    label.textContent = etichetta;
+    const el = document.createElement(tipo === "textarea" ? "textarea" : "input");
+    if (tipo === "textarea") el.className = "corpo";
+    else el.type = tipo;
+    el.value = (bozza && bozza[campo] != null) ? bozza[campo] : (m[campo] || "");
+    el.readOnly = m.status !== "draft";
+    el.addEventListener("input", () => {
+      const valori = {};
+      CAMPI_MAIL.forEach(([c]) => { valori[c] = input[c].value; });
+      scriviMemoria(chiaveBozza, valori);
+    });
+    input[campo] = el;
+    wrapper.append(label, el);
+    griglia.appendChild(wrapper);
+  });
+  modulo.appendChild(griglia);
+  li.appendChild(modulo);
+  titolo.addEventListener("click", () => { modulo.hidden = !modulo.hidden; });
+
+  function modifiche() {
+    const cambi = {};
+    CAMPI_MAIL.forEach(([campo]) => {
+      const valore = input[campo].value.trim();
+      if (valore !== (m[campo] || "")) cambi[campo] = valore;
+    });
+    return cambi;
+  }
+  function controlla(cambi) {
+    const a = cambi.to_email ?? m.to_email;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a || "")) return "Scrivi un indirizzo email valido.";
+    if (!(cambi.subject ?? m.subject)) return "Manca l'oggetto.";
+    if (!(cambi.body ?? m.body)) return "Manca il testo.";
+    return null;
+  }
+
+  if (m.status === "draft") {
+    const conferma = document.createElement("div");
+    conferma.className = "conferma-invio pieno";
+    conferma.hidden = true;
+    conferma.innerHTML = "<span>Si è aperta la mail in Mail: controlla che parta da info@bohememag.it e premi Invia. Poi torna qui.</span>";
+    const si = document.createElement("button");
+    si.type = "button";
+    si.className = "btn-primario";
+    si.textContent = "L'ho inviata";
+    si.addEventListener("click", async () => {
+      if (await salva({ status: "sent", sent_at: new Date().toISOString() })) disegnaMail();
+    });
+    const no = document.createElement("button");
+    no.type = "button";
+    no.className = "btn-link";
+    no.textContent = "Non ancora";
+    no.addEventListener("click", () => { conferma.hidden = true; });
+    conferma.append(si, no);
+
+    const invia = document.createElement("button");
+    invia.type = "button";
+    invia.className = "btn-primario";
+    invia.textContent = "Invia";
+    invia.title = "Apre la mail già scritta nella tua app di posta";
+    invia.addEventListener("click", async () => {
+      const cambi = modifiche();
+      const problema = controlla(cambi);
+      if (problema) {
+        modulo.hidden = false;
+        messaggio.className = "messaggio pieno errore";
+        messaggio.textContent = problema;
+        return;
+      }
+      // le correzioni si salvano prima, così la mail aperta è quella giusta
+      if (Object.keys(cambi).length && !(await salva(cambi))) return;
+      messaggio.textContent = "";
+      location.href = linkMail(m);
+      conferma.hidden = false;
+    });
+
+    const salvaBottone = document.createElement("button");
+    salvaBottone.type = "button";
+    salvaBottone.className = "btn-secondario";
+    salvaBottone.textContent = "Salva modifiche";
+    salvaBottone.addEventListener("click", async () => {
+      const cambi = modifiche();
+      if (!Object.keys(cambi).length) {
+        messaggio.className = "messaggio pieno";
+        messaggio.textContent = "Nessuna modifica da salvare.";
+        return;
+      }
+      const problema = controlla(cambi);
+      if (problema) {
+        messaggio.className = "messaggio pieno errore";
+        messaggio.textContent = problema;
+        return;
+      }
+      if (await salva(cambi, "Modifiche salvate.")) oggetto.textContent = m.subject;
+    });
+    const azioniModulo = document.createElement("div");
+    azioniModulo.className = "azioni";
+    azioniModulo.appendChild(salvaBottone);
+    modulo.appendChild(azioniModulo);
+
+    const scarta = document.createElement("button");
+    scarta.type = "button";
+    scarta.className = "btn-link";
+    scarta.textContent = "Scarta";
+    scarta.addEventListener("click", async () => {
+      if (await salva({ status: "discarded" })) disegnaMail();
+    });
+    azioniCard.append(invia, scarta);
+    li.appendChild(conferma);
+  } else {
+    const rimetti = document.createElement("button");
+    rimetti.type = "button";
+    rimetti.className = "btn-link";
+    rimetti.textContent = m.status === "sent" ? "Non è partita" : "Rimetti da inviare";
+    rimetti.addEventListener("click", async () => {
+      if (await salva({ status: "draft", sent_at: null })) disegnaMail();
+    });
+    azioniCard.appendChild(rimetti);
   }
 
   li.appendChild(messaggio);
