@@ -187,19 +187,20 @@
   .barra-selezione #pubblica-selezionati, .barra-selezione #approva-selezionate { margin-left: auto; }
   .barra-selezione .conta-scelte { font-weight: 600; }
   .barra-selezione .messaggio { flex-basis: 100%; }
-  /* Selezione (proposta B scelta da Simone, 14/10): nei bandi si tocca il
-     quadrato della data, nelle fonti candidate la card intera. Scelto = un po' più scuro. */
-  .bando.selezionabile .scadenza-box { cursor: pointer; position: relative; transition: background .15s; }
-  .bando.selezionabile .scadenza-box:hover { background: color-mix(in srgb, var(--colore-giallo), var(--colore-nero-caldo) 12%); }
-  .bando.selezionabile .scadenza-box:focus-visible { outline: 2px solid var(--colore-nero-caldo); outline-offset: 2px; }
-  .bando.scelto .scadenza-box, .bando.scelto .scadenza-box:hover { background: color-mix(in srgb, var(--colore-giallo), var(--colore-nero-caldo) 28%); }
-  .bando.scelto .scadenza-box > * { visibility: hidden; }
-  .bando.scelto .scadenza-box::after {
-    content: ""; position: absolute; left: 50%; top: 46%; width: 11px; height: 21px;
-    border: solid var(--colore-bianco); border-width: 0 4px 4px 0; transform: translate(-50%, -50%) rotate(45deg);
+  /* Selezione (Simone, 14/10): pallino in riga con i pulsanti, uguale in Bandi e Fonti candidate. */
+  .scegli { display: inline-flex; align-items: center; align-self: center; line-height: 0; cursor: pointer; margin: 0 4px 0 0; }
+  .scegli input {
+    appearance: none; -webkit-appearance: none; margin: 0; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    border: 2px solid var(--colore-linee); background: var(--colore-bianco); transition: background .15s, border-color .15s;
   }
-  .candidato.selezionabile { cursor: pointer; transition: background .15s; }
-  .candidato.scelto { background: color-mix(in srgb, var(--colore-card-beige), var(--colore-giallo) 22%); }
+  .scegli input:hover { border-color: var(--colore-giallo); }
+  .scegli input:focus-visible { outline: 2px solid var(--colore-giallo); outline-offset: 2px; }
+  .scegli input:checked { background: var(--colore-giallo); border-color: var(--colore-giallo); }
+  .scegli input:checked::after {
+    content: ""; width: 7px; height: 13px; border: solid var(--colore-bianco); border-width: 0 3px 3px 0;
+    transform: translateY(-2px) rotate(45deg);
+  }
   .card.scelto { outline: 2px solid var(--colore-giallo); outline-offset: -2px; }
 
   /* card bando */
@@ -1020,24 +1021,7 @@ function creaRigaBando(bando) {
   const azioni = document.createElement("div");
   azioni.className = "azioni-card";
   if (!bando.published) {
-    // Il quadrato della data è il selettore (tocca per scegliere più bandi).
-    const box = li.querySelector(".scadenza-box");
-    li.classList.add("selezionabile");
-    box.tabIndex = 0;
-    box.setAttribute("role", "checkbox");
-    box.title = (box.title ? box.title + " · " : "") + "Tocca per selezionare";
-    const segna = (scelto) => {
-      li.classList.toggle("scelto", scelto);
-      box.setAttribute("aria-checked", scelto ? "true" : "false");
-    };
-    segna(selezionati.has(bando.id));
-    const cambia = () => {
-      if (selezionati.has(bando.id)) selezionati.delete(bando.id); else selezionati.add(bando.id);
-      segna(selezionati.has(bando.id));
-      aggiornaSelezione();
-    };
-    box.addEventListener("click", cambia);
-    box.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); cambia(); } });
+    azioni.appendChild(creaPallino(li, selezionati, bando.id, "Seleziona questo bando", aggiornaSelezione));
   }
   const bottonePubblica = document.createElement("button");
   bottonePubblica.type = "button";
@@ -1773,6 +1757,23 @@ async function caricaCandidate() {
   disegnaCandidate();
 }
 
+// Pallino di selezione, uguale per bandi e fonti candidate.
+function creaPallino(li, insieme, id, etichetta, aggiorna) {
+  const scegli = document.createElement("label");
+  scegli.className = "scegli";
+  scegli.title = "Seleziona";
+  scegli.innerHTML = `<input type="checkbox" aria-label="${etichetta}">`;
+  const casella = scegli.firstChild;
+  casella.checked = insieme.has(id);
+  li.classList.toggle("scelto", casella.checked);
+  casella.addEventListener("change", () => {
+    if (casella.checked) insieme.add(id); else insieme.delete(id);
+    li.classList.toggle("scelto", casella.checked);
+    aggiorna();
+  });
+  return scegli;
+}
+
 // Selezione di più fonti candidate da approvare insieme (come in Bandi).
 const barraCandidate = document.getElementById("barra-candidate");
 const contaCandidateScelte = document.getElementById("conta-candidate-scelte");
@@ -2039,15 +2040,7 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     );
 
     if (!nelPopup) {
-      // Senza data, si seleziona toccando la card (fuori da link e pulsanti).
-      li.classList.add("selezionabile");
-      li.classList.toggle("scelto", candidateScelte.has(candidato.id));
-      li.addEventListener("click", (e) => {
-        if (e.target.closest("a, button, input, textarea, label, select, .nota-scarto")) return;
-        if (candidateScelte.has(candidato.id)) candidateScelte.delete(candidato.id); else candidateScelte.add(candidato.id);
-        li.classList.toggle("scelto", candidateScelte.has(candidato.id));
-        aggiornaCandidateScelte();
-      });
+      azioni.appendChild(creaPallino(li, candidateScelte, candidato.id, "Seleziona questa fonte", aggiornaCandidateScelte));
     }
 
     const bottoneApprova = document.createElement("button");
