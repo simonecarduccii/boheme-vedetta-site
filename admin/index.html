@@ -184,11 +184,23 @@
     padding: var(--spazio-elenco-stretto) var(--spazio-card); box-shadow: 0 4px 12px rgba(37,33,20,.08);
   }
   .barra-selezione #conta-selezione { font-weight: 600; }
-  .barra-selezione #pubblica-selezionati { margin-left: auto; }
+  .barra-selezione #pubblica-selezionati, .barra-selezione #approva-selezionate { margin-left: auto; }
+  .barra-selezione .conta-scelte { font-weight: 600; }
   .barra-selezione .messaggio { flex-basis: 100%; }
-  .scegli { display: inline-flex; align-items: center; gap: 6px; font-size: var(--testo-dettagli); color: var(--colore-grigio-testo); cursor: pointer; margin-right: 8px; }
-  .scegli input { width: 16px; height: 16px; accent-color: var(--colore-giallo); cursor: pointer; }
-  .bando.scelto { outline: 2px solid var(--colore-giallo); outline-offset: -2px; }
+  /* Selezione (proposta B scelta da Simone, 14/10): nei bandi si tocca il
+     quadrato della data, nelle fonti candidate la card intera. Scelto = un po' più scuro. */
+  .bando.selezionabile .scadenza-box { cursor: pointer; position: relative; transition: background .15s; }
+  .bando.selezionabile .scadenza-box:hover { background: color-mix(in srgb, var(--colore-giallo), var(--colore-nero-caldo) 12%); }
+  .bando.selezionabile .scadenza-box:focus-visible { outline: 2px solid var(--colore-nero-caldo); outline-offset: 2px; }
+  .bando.scelto .scadenza-box, .bando.scelto .scadenza-box:hover { background: color-mix(in srgb, var(--colore-giallo), var(--colore-nero-caldo) 28%); }
+  .bando.scelto .scadenza-box > * { visibility: hidden; }
+  .bando.scelto .scadenza-box::after {
+    content: ""; position: absolute; left: 50%; top: 46%; width: 11px; height: 21px;
+    border: solid var(--colore-bianco); border-width: 0 4px 4px 0; transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .candidato.selezionabile { cursor: pointer; transition: background .15s; }
+  .candidato.scelto { background: color-mix(in srgb, var(--colore-card-beige), var(--colore-giallo) 22%); }
+  .card.scelto { outline: 2px solid var(--colore-giallo); outline-offset: -2px; }
 
   /* card bando */
   .bando { padding: var(--spazio-pillola-orizzontale) var(--spazio-card); grid-template-columns: var(--layout-scadenza) minmax(0, 1fr) auto; column-gap: var(--spazio-card); }
@@ -457,6 +469,13 @@
         <div id="battito-candidate" class="battito"></div>
         <div id="stato-candidate" class="stato-elenco"></div>
         <ul id="elenco-candidate" class="elenco"></ul>
+        <div id="barra-candidate" class="barra-selezione" hidden>
+          <span id="conta-candidate-scelte" class="conta-scelte"></span>
+          <button type="button" class="btn-link" id="seleziona-tutte-candidate">Seleziona tutte quelle in vista</button>
+          <button type="button" class="btn-link" id="annulla-candidate">Annulla</button>
+          <button type="button" class="btn-primario" id="approva-selezionate">Approva le selezionate</button>
+          <div class="messaggio" id="msg-candidate"></div>
+        </div>
         <dialog id="popup-candidato" aria-label="Resoconto della fonte candidata">
           <button class="chiudi" type="button" aria-label="Chiudi">×</button>
           <div id="popup-contenuto"></div>
@@ -562,6 +581,8 @@ let ultimoControlloFonte = {};
 let filtroAttuale = "da-rivedere";
 let bandi = [];
 let filtroCandidatoAttuale = "da_valutare";
+const candidateScelte = new Set();  // fonti candidate selezionate per approvarle insieme
+let candidateInVista = [];
 let soloMancanti = false;          // filtro "Dati mancanti": senza sito o senza email
 let candidati = [];
 let candidatiCaricati = false;
@@ -996,18 +1017,24 @@ function creaRigaBando(bando) {
   const azioni = document.createElement("div");
   azioni.className = "azioni-card";
   if (!bando.published) {
-    const scegli = document.createElement("label");
-    scegli.className = "scegli";
-    scegli.innerHTML = '<input type="checkbox"> Seleziona';
-    const casella = scegli.firstChild;
-    casella.checked = selezionati.has(bando.id);
-    li.classList.toggle("scelto", casella.checked);
-    casella.addEventListener("change", () => {
-      if (casella.checked) selezionati.add(bando.id); else selezionati.delete(bando.id);
-      li.classList.toggle("scelto", casella.checked);
+    // Il quadrato della data è il selettore (tocca per scegliere più bandi).
+    const box = li.querySelector(".scadenza-box");
+    li.classList.add("selezionabile");
+    box.tabIndex = 0;
+    box.setAttribute("role", "checkbox");
+    box.title = (box.title ? box.title + " · " : "") + "Tocca per selezionare";
+    const segna = (scelto) => {
+      li.classList.toggle("scelto", scelto);
+      box.setAttribute("aria-checked", scelto ? "true" : "false");
+    };
+    segna(selezionati.has(bando.id));
+    const cambia = () => {
+      if (selezionati.has(bando.id)) selezionati.delete(bando.id); else selezionati.add(bando.id);
+      segna(selezionati.has(bando.id));
       aggiornaSelezione();
-    });
-    azioni.appendChild(scegli);
+    };
+    box.addEventListener("click", cambia);
+    box.addEventListener("keydown", (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); cambia(); } });
   }
   const bottonePubblica = document.createElement("button");
   bottonePubblica.type = "button";
@@ -1743,6 +1770,61 @@ async function caricaCandidate() {
   disegnaCandidate();
 }
 
+// Selezione di più fonti candidate da approvare insieme (come in Bandi).
+const barraCandidate = document.getElementById("barra-candidate");
+const contaCandidateScelte = document.getElementById("conta-candidate-scelte");
+const approvaSelezionate = document.getElementById("approva-selezionate");
+const msgCandidate = document.getElementById("msg-candidate");
+
+function aggiornaCandidateScelte() {
+  [...candidateScelte].forEach((id) => {
+    const c = candidati.find((x) => x.id === id);
+    if (!c || c.status !== "da_valutare") candidateScelte.delete(id);
+  });
+  const n = candidateScelte.size;
+  barraCandidate.hidden = !candidateInVista.length && !n;
+  contaCandidateScelte.textContent = n ? (n === 1 ? "1 fonte selezionata" : `${n} fonti selezionate`) : "Nessuna fonte selezionata";
+  approvaSelezionate.disabled = !n;
+  approvaSelezionate.textContent = n ? `Approva le selezionate (${n})` : "Approva le selezionate";
+}
+
+document.getElementById("seleziona-tutte-candidate").addEventListener("click", () => {
+  candidateInVista.forEach((c) => candidateScelte.add(c.id));
+  msgCandidate.textContent = "";
+  disegnaCandidate();
+});
+document.getElementById("annulla-candidate").addEventListener("click", () => {
+  candidateScelte.clear();
+  msgCandidate.textContent = "";
+  disegnaCandidate();
+});
+approvaSelezionate.addEventListener("click", async () => {
+  const ids = [...candidateScelte];
+  if (!ids.length) return;
+  if (!confirm(ids.length === 1 ? "Approvare 1 fonte?" : `Approvare ${ids.length} fonti?`)) return;
+  approvaSelezionate.disabled = true;
+  msgCandidate.className = "messaggio";
+  msgCandidate.textContent = "Approvo…";
+  const quando = new Date().toISOString();
+  // Valore inglese; se il database accetta ancora solo l'italiano ripiega (come per la singola).
+  let { error } = await supabase.from("source_candidates").update({ status: "approved", decided_at: quando }).in("id", ids);
+  if (error && error.code === "23514") {
+    ({ error } = await supabase.from("source_candidates").update({ status: "approvato", decided_at: quando }).in("id", ids));
+  }
+  if (error) {
+    approvaSelezionate.disabled = false;
+    msgCandidate.className = "messaggio errore";
+    msgCandidate.textContent = "Errore: " + inItaliano(error);
+    return;
+  }
+  candidati.forEach((c) => { if (ids.includes(c.id)) Object.assign(c, { status: "approvato", decided_at: quando }); });
+  candidateScelte.clear();
+  tutteFontiCaricate = false;
+  msgCandidate.className = "messaggio ok";
+  msgCandidate.textContent = ids.length === 1 ? "Approvata: ora è in \"Tutte le fonti\", attiva." : `Approvate ${ids.length} fonti: ora sono in "Tutte le fonti", attive.`;
+  disegnaCandidate();
+});
+
 // Regola di Simone: ogni fonte ha un sito e un'email di contatto.
 const vuoto = (v) => !String(v || "").trim();
 const datiMancanti = (c) => vuoto(c.website_url) || vuoto(c.contact_email);
@@ -1778,6 +1860,8 @@ function disegnaCandidate() {
     return (c.organization_name + " " + (c.website_url || "")).toLowerCase().includes(testo);
   });
   statoCandidate.textContent = visibili.length ? "" : "Nessuna fonte in questa vista.";
+  candidateInVista = visibili.filter((c) => c.status === "da_valutare");
+  aggiornaCandidateScelte();
   elencoCandidateEl.innerHTML = "";
   visibili.forEach((c) => elencoCandidateEl.appendChild(creaRigaCandidato(c)));
   ripristinaScorrimento();
@@ -1947,6 +2031,18 @@ function creaRigaCandidato(candidato, nelPopup = false) {
           : "Scartata."
       )
     );
+
+    if (!nelPopup) {
+      // Senza data, si seleziona toccando la card (fuori da link e pulsanti).
+      li.classList.add("selezionabile");
+      li.classList.toggle("scelto", candidateScelte.has(candidato.id));
+      li.addEventListener("click", (e) => {
+        if (e.target.closest("a, button, input, textarea, label, select, .nota-scarto")) return;
+        if (candidateScelte.has(candidato.id)) candidateScelte.delete(candidato.id); else candidateScelte.add(candidato.id);
+        li.classList.toggle("scelto", candidateScelte.has(candidato.id));
+        aggiornaCandidateScelte();
+      });
+    }
 
     const bottoneApprova = document.createElement("button");
     bottoneApprova.className = "btn-primario";
