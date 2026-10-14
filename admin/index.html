@@ -1774,6 +1774,91 @@ function creaPallino(li, insieme, id, etichetta, aggiorna) {
   return scegli;
 }
 
+// Campi della fonte candidata che il pannello può correggere a mano.
+const CAMPI_CANDIDATO = [
+  ["organization_name", "Nome", "text"],
+  ["website_url", "Sito", "url"],
+  ["opportunities_url", "Pagina bandi", "url"],
+  ["contact_email", "Email di contatto", "email"],
+  ["instagram_url", "Instagram", "url"],
+  ["site_summary", "Resoconto", "textarea"],
+];
+
+// "Modifica" su una fonte candidata: stesso riquadro di "Tutte le fonti".
+function apriModificaCandidato(li, candidato, nelPopup, messaggio) {
+  const esistente = li.querySelector(".modulo");
+  if (esistente) { esistente.remove(); return; }
+  const modulo = document.createElement("div");
+  modulo.className = "modulo pieno";
+  const griglia = document.createElement("div");
+  griglia.className = "griglia";
+  const input = {};
+  CAMPI_CANDIDATO.forEach(([campo, etichetta, tipoCampo]) => {
+    const wrapper = document.createElement("div");
+    if (tipoCampo === "textarea") wrapper.className = "campo-largo";
+    const label = document.createElement("label");
+    label.textContent = etichetta;
+    const el = document.createElement(tipoCampo === "textarea" ? "textarea" : "input");
+    if (tipoCampo !== "textarea") el.type = tipoCampo;
+    el.value = candidato[campo] || "";
+    input[campo] = el;
+    wrapper.append(label, el);
+    griglia.appendChild(wrapper);
+  });
+  modulo.appendChild(griglia);
+  const azioni = document.createElement("div");
+  azioni.className = "azioni";
+  const salva = document.createElement("button");
+  salva.type = "button";
+  salva.className = "btn-primario";
+  salva.textContent = "Salva modifiche";
+  const annulla = document.createElement("button");
+  annulla.type = "button";
+  annulla.className = "btn-link";
+  annulla.textContent = "Annulla";
+  annulla.addEventListener("click", () => modulo.remove());
+  const esito = document.createElement("div");
+  esito.className = "messaggio";
+  salva.addEventListener("click", async () => {
+    const modifiche = {};
+    CAMPI_CANDIDATO.forEach(([campo]) => {
+      const valore = input[campo].value.trim() || null;
+      if (valore !== (candidato[campo] || null)) modifiche[campo] = valore;
+    });
+    if (!Object.keys(modifiche).length) { modulo.remove(); return; }
+    if ("organization_name" in modifiche && !modifiche.organization_name) {
+      esito.className = "messaggio errore";
+      esito.textContent = "Il nome non può restare vuoto.";
+      return;
+    }
+    if (modifiche.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(modifiche.contact_email)) {
+      esito.className = "messaggio errore";
+      esito.textContent = "Scrivi un indirizzo email valido.";
+      return;
+    }
+    esito.className = "messaggio";
+    esito.textContent = "Salvo…";
+    const { error } = await supabase.from("source_candidates").update(modifiche).eq("id", candidato.id);
+    if (error) {
+      esito.className = "messaggio errore";
+      esito.textContent = "Errore: " + inItaliano(error);
+      return;
+    }
+    Object.assign(candidato, modifiche);
+    disegnaCandidate();
+    if (nelPopup) apriPopupCandidato(candidato, "Modifiche salvate.");
+    else {
+      const nuova = [...elencoCandidateEl.children].find((x) => x.dataset.id === String(candidato.id));
+      const m = nuova && nuova.querySelector(":scope > .messaggio");
+      if (m) { m.className = "messaggio pieno ok"; m.textContent = "Modifiche salvate."; }
+    }
+  });
+  azioni.append(salva, annulla);
+  modulo.append(azioni, esito);
+  li.insertBefore(modulo, messaggio);
+  input.organization_name.focus();
+}
+
 // Selezione di più fonti candidate da approvare insieme (come in Bandi).
 const barraCandidate = document.getElementById("barra-candidate");
 const contaCandidateScelte = document.getElementById("conta-candidate-scelte");
@@ -1900,6 +1985,7 @@ function apriPopupCandidato(candidato, testoOk) {
 function creaRigaCandidato(candidato, nelPopup = false) {
   const li = document.createElement(nelPopup ? "div" : "li");
   li.className = "card candidato";
+  li.dataset.id = candidato.id;
 
   const testi = document.createElement("div");
   testi.className = "testi";
@@ -2054,6 +2140,13 @@ function creaRigaCandidato(candidato, nelPopup = false) {
     bottoneScarta.textContent = "Scarta";
     bottoneScarta.addEventListener("click", () => chiediNota("scartato"));
     azioni.appendChild(bottoneScarta);
+
+    const bottoneModifica = document.createElement("button");
+    bottoneModifica.type = "button";
+    bottoneModifica.className = "btn-link";
+    bottoneModifica.textContent = "Modifica";
+    bottoneModifica.addEventListener("click", () => apriModificaCandidato(li, candidato, nelPopup, messaggio));
+    azioni.appendChild(bottoneModifica);
 
     li.appendChild(azioni);
     li.appendChild(notaDecisione);
