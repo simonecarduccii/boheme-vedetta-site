@@ -318,7 +318,9 @@
   .conta-candidate { font-size: 14px; font-weight: 500; color: var(--colore-grigio-testo); }
   .conta-candidate:empty { display: none; }
   .conta-candidate strong { color: var(--colore-nero-caldo); font-weight: 600; }
-  .conta-candidate .numero { font-family: var(--font-titoli); font-size: 22px; font-weight: 700; }
+  /* Stesso carattere del resto della riga: il numero da valutare si distingue solo per peso e colore. */
+  .conta-candidate .numero { font-weight: 700; }
+  .conta-candidate .da-valutare { color: var(--colore-nero-caldo); font-weight: 600; }
   .conta-candidate .manca { color: var(--colore-rosso); }
   .battito .avviso { font-size: 12px; }
 
@@ -1847,7 +1849,7 @@ function contaCandidate() {
   filtroMancanti.textContent = `Dati mancanti (${nellaVista})`;
   const dettaglio = [senzaEmail ? `${senzaEmail} senza email` : null, senzaSito ? `${senzaSito} senza sito` : null].filter(Boolean).join(", ");
   document.getElementById("conta-candidate").innerHTML =
-    `<strong class="numero">${daValutare.length}</strong> ${daValutare.length === 1 ? "fonte da valutare" : "fonti da valutare"} · ` +
+    `<span class="da-valutare"><strong class="numero">${daValutare.length}</strong> ${daValutare.length === 1 ? "fonte da valutare" : "fonti da valutare"}</span> · ` +
     (mancanti
       ? `<span class="manca"><strong>${mancanti}</strong> con dati mancanti</span> (${dettaglio})`
       : "nessuna con dati mancanti") +
