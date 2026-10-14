@@ -132,7 +132,8 @@
     .testa { gap: var(--spazio-minimo); }
     .etichetta .arte-nome { display: inline; }
     .chip.arte { display: none; }
-    .ente { margin-top: calc(-1 * var(--spazio-elenco-stretto)); }
+    /* L'ente sta nella colonna del titolo, accanto alla data. */
+    .ente { margin-top: calc(2px - var(--spazio-minimo)); }
     .bando h3 { font-size: var(--testo-titolo-card); }
     .testi > :not(.testa) { grid-column: 1 / -1; }
   }
@@ -168,36 +169,18 @@
   const SUPABASE_URL = "https://aqgxgdpsjyidambwipqg.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_COi81UtfEAr0grmvCHqMMQ_pVJEWl4k";
 
-  // Arti riconosciute dalle parole di `disciplines` (stessa regola del pannello).
-  const ARTI = [
-    ["Musica", "--arti-musica", /music|musica|sound|suono|compos/],
-    ["Fotografia", "--arti-fotografia", /photo|fotogra/],
-    ["Teatro", "--arti-teatro", /theat|teatr|perform|danc|danza/],
-    ["Cinema", "--arti-cinema", /film|cinem|video|movie|audiovis/],
-    ["Pittura", "--arti-pittura", /paint|pittur|visual art|arti visive|fine art/],
-    ["Illustrazione", "--arti-illustrazione", /illustra|comic|fumett/],
-    ["Scrittura", "--arti-scrittura", /literat|letterat|writ|scrittur|poe|narrat/],
-    ["Architettura", "--arti-architettura", /architet/],
-    ["Street Art", "--arti-street-art", /street art|mural/],
-    ["Scultura", "--arti-scultura", /sculpt|scult/],
-    ["Moda", "--arti-moda", /fashion|moda\b/],
-    ["Stand Up Comedy", "--arti-stand-up-comedy", /comedy|stand.?up|comico/],
-  ];
-  const artiDi = (b) => {
-    const t = String(b.disciplines || "").toLowerCase();
-    return t ? ARTI.filter(([, , r]) => r.test(t)) : [];
-  };
+  // Sul sito le arti sono due: Fotografia, e Arte visiva per tutto il resto (Puccini 2.0).
+  const FOTO = ["Fotografia", "--arti-fotografia"];
+  const ARTE_VISIVA = ["Arte visiva", "--arti-galleria"];
+  const arteDi = (b) => /photo|fotogra/.test(String(b.disciplines || "").toLowerCase()) ? FOTO : ARTE_VISIVA;
   const testoDi = (b) => [b.title, b.organization_name, b.description, b.disciplines, b.prizes, b.exhibition, b.location, b.organization_country]
     .filter(Boolean).join(" ").toLowerCase();
   const gratis = (b) => /^\s*(free|gratis|gratuit[oa]?|nessun|no fee|0\s*(€|eur)?\s*$)/i.test(b.cost || "");
 
   const FILTRI = [
     ["Tutti", () => true],
-    ["Fotografia", (b) => artiDi(b).some(([n]) => n === "Fotografia")],
-    ["Pittura", (b) => artiDi(b).some(([n]) => n === "Pittura")],
-    ["Cinema", (b) => artiDi(b).some(([n]) => n === "Cinema")],
-    ["Teatro", (b) => artiDi(b).some(([n]) => n === "Teatro")],
-    ["Musica", (b) => artiDi(b).some(([n]) => n === "Musica")],
+    ["Fotografia", (b) => arteDi(b) === FOTO],
+    ["Arte visiva", (b) => arteDi(b) === ARTE_VISIVA],
     ["Residenze", (b) => /residen/.test(testoDi(b))],
     ["Premi", (b) => !!b.prizes || /\b(prize|premio|premi|award)/.test(String(b.title || "").toLowerCase())],
     ["Gratis", gratis],
@@ -240,13 +223,12 @@
   }
 
   function creaBando(b) {
-    const arti = artiDi(b);
-    const colore = arti.length ? "var(" + arti[0][1] + ")" : "var(--colore-giallo)";
+    const arte = arteDi(b);
+    const colore = "var(" + arte[1] + ")";
     const li = document.createElement("li");
     li.className = "bando";
     li.style.setProperty("--colore-arte", colore);
-    // Il giallo sul beige si legge poco: senza arte, "OPEN CALL" va nel giallo scuro.
-    li.style.setProperty("--colore-etichetta", arti.length ? colore : "var(--colore-giallo-scuro-testo)");
+    li.style.setProperty("--colore-etichetta", colore);
 
     const data = document.createElement("div");
     data.className = "data";
@@ -267,15 +249,13 @@
     const testa = document.createElement("div");
     testa.className = "testa";
     testa.innerHTML = '<span class="etichetta"><span>OPEN CALL</span></span><h3></h3>';
-    if (arti.length) {
-      // Sul telefono l'etichetta porta anche l'arte: "OPEN CALL · FOTOGRAFIA".
-      ["·", arti[0][0].toUpperCase()].forEach((testo) => {
-        const parte = document.createElement("span");
-        parte.className = "arte-nome";
-        parte.textContent = testo;
-        testa.firstChild.appendChild(parte);
-      });
-    }
+    // Sul telefono l'etichetta porta anche l'arte: "OPEN CALL · FOTOGRAFIA".
+    ["·", arte[0].toUpperCase()].forEach((testo) => {
+      const parte = document.createElement("span");
+      parte.className = "arte-nome";
+      parte.textContent = testo;
+      testa.firstChild.appendChild(parte);
+    });
     const h3 = testa.querySelector("h3");
     const link = b.opportunity_url || b.organization_website;
     if (link) {
@@ -290,7 +270,7 @@
       const ente = document.createElement("div");
       ente.className = "ente";
       ente.textContent = b.organization_name + (b.organization_country ? " · " + b.organization_country : "");
-      testi.appendChild(ente);
+      testa.appendChild(ente);
     }
 
     const chips = document.createElement("div");
@@ -302,7 +282,7 @@
       chips.appendChild(chip("info", i ? i + " di iscrizione" : accorcia(b.cost, 32)));
     }
     if (b.location) chips.appendChild(chip("info", accorcia(b.location, 40)));
-    arti.forEach(([nome, c]) => chips.appendChild(chip("arte", nome, c)));
+    chips.appendChild(chip("arte", arte[0], arte[1]));
     if (b.description) {
       const p = document.createElement("p");
       p.className = "descrizione";

@@ -888,26 +888,13 @@ pubblicaSelezionati.addEventListener("click", async () => {
 });
 
 // Arti ricavate dal testo libero "disciplines" (nessuna colonna nuova nel
-// database). I colori sono le variabili --arte-* di tokens.css (dal Figma).
-const ARTI = [
-  ["Musica", "var(--arti-musica)", /music|musica|sound|suono|compos/],
-  ["Fotografia", "var(--arti-fotografia)", /photo|fotogra/],
-  ["Teatro", "var(--arti-teatro)", /theat|teatr|perform|danc|danza/],
-  ["Cinema", "var(--arti-cinema)", /film|cinem|video|movie|audiovis/],
-  ["Pittura", "var(--arti-pittura)", /paint|pittur|visual art|arti visive|fine art/],
-  ["Illustrazione", "var(--arti-illustrazione)", /illustra|comic|fumett/],
-  ["Scrittura", "var(--arti-scrittura)", /literat|letterat|writ|scrittur|poe|narrat/],
-  ["Architettura", "var(--arti-architettura)", /architet/],
-  ["Street Art", "var(--arti-street-art)", /street art|mural/],
-  ["Scultura", "var(--arti-scultura)", /sculpt|scult/],
-  ["Moda", "var(--arti-moda)", /fashion|moda\b/],
-  ["Stand Up Comedy", "var(--arti-stand-up-comedy)", /comedy|stand.?up|comico/],
-];
-
+// database). Come sul sito, sono due: Fotografia, e Arte Visiva per tutto il
+// resto (Puccini 2.0). I colori sono le variabili --arti-* di tokens.css.
 function artiDelBando(bando) {
   const testo = String(bando.disciplines || "").toLowerCase();
-  if (!testo) return [];
-  return ARTI.filter(([, , regola]) => regola.test(testo));
+  return /photo|fotogra/.test(testo)
+    ? [["Fotografia", "var(--arti-fotografia)"]]
+    : [["Arte Visiva", "var(--arti-galleria)"]];
 }
 
 const MESI_BREVI = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
