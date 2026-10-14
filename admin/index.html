@@ -303,6 +303,10 @@
   .nota-scarto label { margin-top: 0; }
   .battito { font-size: 12px; font-weight: 500; color: var(--colore-giallo-scuro-testo); }
   .battito:empty { display: none; }
+  .conta-candidate { font-size: 14px; font-weight: 500; color: var(--colore-grigio-testo); }
+  .conta-candidate:empty { display: none; }
+  .conta-candidate strong { color: var(--colore-nero-caldo); font-weight: 600; }
+  .conta-candidate .manca { color: var(--colore-rosso); }
   .battito .avviso { font-size: 12px; }
 
   /* pop-up della fonte candidata */
@@ -447,7 +451,9 @@
           <button class="filtro attivo" data-filtro-candidato="da_valutare">Da valutare</button>
           <button class="filtro" data-filtro-candidato="approvato">Approvate</button>
           <button class="filtro" data-filtro-candidato="scartato">Scartate</button>
+          <button class="filtro" id="filtro-mancanti" type="button" aria-pressed="false" title="Senza sito o senza email di contatto">Dati mancanti</button>
         </div>
+        <div id="conta-candidate" class="conta-candidate"></div>
         <div id="battito-candidate" class="battito"></div>
         <div id="stato-candidate" class="stato-elenco"></div>
         <ul id="elenco-candidate" class="elenco"></ul>
@@ -556,6 +562,7 @@ let ultimoControlloFonte = {};
 let filtroAttuale = "da-rivedere";
 let bandi = [];
 let filtroCandidatoAttuale = "da_valutare";
+let soloMancanti = false;          // filtro "Dati mancanti": senza sito o senza email
 let candidati = [];
 let candidatiCaricati = false;
 let tutteLeFonti = [];
@@ -740,6 +747,14 @@ document.querySelectorAll("[data-filtro-candidato]").forEach((bottone) => {
     filtroCandidatoAttuale = bottone.dataset.filtroCandidato;
     disegnaCandidate();
   });
+});
+
+const filtroMancanti = document.getElementById("filtro-mancanti");
+filtroMancanti.addEventListener("click", () => {
+  soloMancanti = !soloMancanti;
+  filtroMancanti.classList.toggle("attivo", soloMancanti);
+  filtroMancanti.setAttribute("aria-pressed", soloMancanti ? "true" : "false");
+  disegnaCandidate();
 });
 
 async function caricaBandi() {
@@ -1728,10 +1743,37 @@ async function caricaCandidate() {
   disegnaCandidate();
 }
 
+// Regola di Simone: ogni fonte ha un sito e un'email di contatto.
+const vuoto = (v) => !String(v || "").trim();
+const datiMancanti = (c) => vuoto(c.website_url) || vuoto(c.contact_email);
+
+// Numeri in cima: quante candidate per stato e quante con dati mancanti.
+function contaCandidate() {
+  const conta = { da_valutare: 0, approvato: 0, scartato: 0 };
+  candidati.forEach((c) => { if (c.status in conta) conta[c.status]++; });
+  document.querySelectorAll("[data-filtro-candidato]").forEach((b) => {
+    const nome = { da_valutare: "Da valutare", approvato: "Approvate", scartato: "Scartate" }[b.dataset.filtroCandidato];
+    b.textContent = `${nome} (${conta[b.dataset.filtroCandidato] || 0})`;
+  });
+  const mancanti = candidati.filter(datiMancanti).length;
+  const senzaEmail = candidati.filter((c) => vuoto(c.contact_email)).length;
+  const senzaSito = candidati.filter((c) => vuoto(c.website_url)).length;
+  const nellaVista = candidati.filter((c) => c.status === filtroCandidatoAttuale && datiMancanti(c)).length;
+  filtroMancanti.textContent = `Dati mancanti (${nellaVista})`;
+  const dettaglio = [senzaEmail ? `${senzaEmail} senza email` : null, senzaSito ? `${senzaSito} senza sito` : null].filter(Boolean).join(", ");
+  document.getElementById("conta-candidate").innerHTML =
+    `<strong>${candidati.length}</strong> fonti candidate in tutto · ` +
+    (mancanti
+      ? `<span class="manca"><strong>${mancanti}</strong> con dati mancanti</span> (${dettaglio})`
+      : "nessuna con dati mancanti");
+}
+
 function disegnaCandidate() {
+  contaCandidate();
   const testo = candidateCerca.value.trim().toLowerCase();
   const visibili = candidati.filter((c) => {
     if (c.status !== filtroCandidatoAttuale) return false;
+    if (soloMancanti && !datiMancanti(c)) return false;
     if (!testo) return true;
     return (c.organization_name + " " + (c.website_url || "")).toLowerCase().includes(testo);
   });
