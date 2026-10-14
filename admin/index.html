@@ -176,6 +176,20 @@
   .messaggio.ok { color: var(--colore-verde); }
   .messaggio.errore { color: var(--colore-rosso); }
 
+  /* selezione di più bandi */
+  .barra-selezione {
+    position: sticky; bottom: 16px; z-index: 3;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+    background: var(--colore-bianco); border: 1px solid var(--colore-linee); border-radius: var(--angoli-card);
+    padding: var(--spazio-elenco-stretto) var(--spazio-card); box-shadow: 0 4px 12px rgba(37,33,20,.08);
+  }
+  .barra-selezione #conta-selezione { font-weight: 600; }
+  .barra-selezione #pubblica-selezionati { margin-left: auto; }
+  .barra-selezione .messaggio { flex-basis: 100%; }
+  .scegli { display: inline-flex; align-items: center; gap: 6px; font-size: var(--testo-dettagli); color: var(--colore-grigio-testo); cursor: pointer; margin-right: 8px; }
+  .scegli input { width: 16px; height: 16px; accent-color: var(--colore-giallo); cursor: pointer; }
+  .bando.scelto { outline: 2px solid var(--colore-giallo); outline-offset: -2px; }
+
   /* card bando */
   .bando { padding: var(--spazio-pillola-orizzontale) var(--spazio-card); grid-template-columns: var(--layout-scadenza) minmax(0, 1fr) auto; column-gap: var(--spazio-card); }
   .bando .testi { gap: 8px; }
@@ -459,9 +473,17 @@
       <div id="vista-bandi" class="giu">
         <div class="riga-ricerca">
           <label class="ricerca"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="search" id="bandi-cerca" placeholder="Cerca un bando, un ente, una città" aria-label="Cerca un bando, un ente, una città"></label>
+          <button class="filtro" id="filtro-presto" type="button" aria-pressed="false" title="Scadenza entro 14 giorni">Scadono presto</button>
         </div>
         <div id="stato-elenco" class="stato-elenco"></div>
         <ul id="elenco" class="elenco"></ul>
+        <div id="barra-selezione" class="barra-selezione" hidden>
+          <span id="conta-selezione"></span>
+          <button type="button" class="btn-link" id="seleziona-tutti">Seleziona tutti quelli in vista</button>
+          <button type="button" class="btn-link" id="annulla-selezione">Annulla</button>
+          <button type="button" class="btn-primario" id="pubblica-selezionati">Pubblica i selezionati</button>
+          <div class="messaggio" id="msg-selezione"></div>
+        </div>
       </div>
     </div>
 
@@ -528,6 +550,8 @@ const pilloleBandi = document.getElementById("pillole-bandi");
 let zonaAttuale = "sources";
 let subSourcesAttuale = "tutte";
 let bandiCaricati = false;
+let soloPresto = false;           // filtro "Scadono presto": entro 14 giorni
+const selezionati = new Set();    // id dei bandi scelti per la pubblicazione in blocco
 let ultimoControlloFonte = {};
 let filtroAttuale = "da-rivedere";
 let bandi = [];
@@ -735,7 +759,18 @@ async function caricaBandi() {
   disegnaElenco();
 }
 
+function scadePresto(bando) {
+  if (!bando.deadline) return false;
+  const d = new Date(bando.deadline);
+  if (isNaN(d.getTime())) return false;
+  const oggi = new Date();
+  oggi.setHours(0, 0, 0, 0);
+  const giorni = (d - oggi) / 86400000;
+  return giorni >= 0 && giorni <= 14;
+}
+
 function corrisponde(bando) {
+  if (soloPresto && !scadePresto(bando)) return false;
   if (filtroAttuale === "pubblicati") return bando.published;
   if (filtroAttuale === "proposte") return Boolean(bando.pending_update);
   if (filtroAttuale === "tutti") return true;
@@ -788,8 +823,69 @@ function disegnaElenco() {
   statoElenco.textContent = visibili.length ? "" : "Nessun bando in questa vista.";
   elencoEl.innerHTML = "";
   visibili.forEach((bando) => elencoEl.appendChild(creaRigaBando(bando)));
+  bandiInVista = visibili.filter((b) => !b.published);
+  aggiornaSelezione();
   ripristinaScorrimento();
 }
+
+// ---- pubblicazione in blocco ----
+let bandiInVista = [];
+const barraSelezione = document.getElementById("barra-selezione");
+const contaSelezione = document.getElementById("conta-selezione");
+const pubblicaSelezionati = document.getElementById("pubblica-selezionati");
+const msgSelezione = document.getElementById("msg-selezione");
+const filtroPresto = document.getElementById("filtro-presto");
+
+function aggiornaSelezione() {
+  // Tiene solo i bandi ancora da pubblicare.
+  [...selezionati].forEach((id) => {
+    const b = bandi.find((x) => x.id === id);
+    if (!b || b.published) selezionati.delete(id);
+  });
+  const n = selezionati.size;
+  barraSelezione.hidden = !bandiInVista.length && !n;
+  contaSelezione.textContent = n ? (n === 1 ? "1 bando selezionato" : `${n} bandi selezionati`) : "Nessun bando selezionato";
+  pubblicaSelezionati.disabled = !n;
+  pubblicaSelezionati.textContent = n ? `Pubblica i selezionati (${n})` : "Pubblica i selezionati";
+}
+
+filtroPresto.addEventListener("click", () => {
+  soloPresto = !soloPresto;
+  filtroPresto.classList.toggle("attivo", soloPresto);
+  filtroPresto.setAttribute("aria-pressed", soloPresto ? "true" : "false");
+  disegnaElenco();
+});
+document.getElementById("seleziona-tutti").addEventListener("click", () => {
+  bandiInVista.forEach((b) => selezionati.add(b.id));
+  msgSelezione.textContent = "";
+  disegnaElenco();
+});
+document.getElementById("annulla-selezione").addEventListener("click", () => {
+  selezionati.clear();
+  msgSelezione.textContent = "";
+  disegnaElenco();
+});
+pubblicaSelezionati.addEventListener("click", async () => {
+  const ids = [...selezionati];
+  if (!ids.length) return;
+  if (!confirm(ids.length === 1 ? "Pubblicare 1 bando sul sito?" : `Pubblicare ${ids.length} bandi sul sito?`)) return;
+  pubblicaSelezionati.disabled = true;
+  msgSelezione.className = "messaggio";
+  msgSelezione.textContent = "Pubblico…";
+  const patch = { verified: true, published: true };
+  const { error } = await supabase.from("open_calls").update(patch).in("id", ids);
+  if (error) {
+    pubblicaSelezionati.disabled = false;
+    msgSelezione.className = "messaggio errore";
+    msgSelezione.textContent = "Errore: " + inItaliano(error);
+    return;
+  }
+  bandi.forEach((b) => { if (ids.includes(b.id)) Object.assign(b, patch); });
+  selezionati.clear();
+  msgSelezione.className = "messaggio ok";
+  msgSelezione.textContent = ids.length === 1 ? "Pubblicato: ora è visibile sul sito." : `Pubblicati ${ids.length} bandi: ora sono visibili sul sito.`;
+  disegnaElenco();
+});
 
 // Arti ricavate dal testo libero "disciplines" (nessuna colonna nuova nel
 // database). I colori sono le variabili --arte-* di tokens.css (dal Figma).
@@ -897,6 +993,20 @@ function creaRigaBando(bando) {
 
   const azioni = document.createElement("div");
   azioni.className = "azioni-card";
+  if (!bando.published) {
+    const scegli = document.createElement("label");
+    scegli.className = "scegli";
+    scegli.innerHTML = '<input type="checkbox"> Seleziona';
+    const casella = scegli.firstChild;
+    casella.checked = selezionati.has(bando.id);
+    li.classList.toggle("scelto", casella.checked);
+    casella.addEventListener("change", () => {
+      if (casella.checked) selezionati.add(bando.id); else selezionati.delete(bando.id);
+      li.classList.toggle("scelto", casella.checked);
+      aggiornaSelezione();
+    });
+    azioni.appendChild(scegli);
+  }
   const bottonePubblica = document.createElement("button");
   bottonePubblica.type = "button";
   if (bando.published) {
