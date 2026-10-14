@@ -318,6 +318,7 @@
   .conta-candidate { font-size: 14px; font-weight: 500; color: var(--colore-grigio-testo); }
   .conta-candidate:empty { display: none; }
   .conta-candidate strong { color: var(--colore-nero-caldo); font-weight: 600; }
+  .conta-candidate .numero { font-family: var(--font-titoli); font-size: 22px; font-weight: 700; }
   .conta-candidate .manca { color: var(--colore-rosso); }
   .battito .avviso { font-size: 12px; }
 
@@ -1837,17 +1838,20 @@ function contaCandidate() {
     const nome = { da_valutare: "Da valutare", approvato: "Approvate", scartato: "Scartate" }[b.dataset.filtroCandidato];
     b.textContent = `${nome} (${conta[b.dataset.filtroCandidato] || 0})`;
   });
-  const mancanti = candidati.filter(datiMancanti).length;
-  const senzaEmail = candidati.filter((c) => vuoto(c.contact_email)).length;
-  const senzaSito = candidati.filter((c) => vuoto(c.website_url)).length;
+  // Il numero principale è quello delle fonti da valutare (Simone, 14/10).
+  const daValutare = candidati.filter((c) => c.status === "da_valutare");
+  const mancanti = daValutare.filter(datiMancanti).length;
+  const senzaEmail = daValutare.filter((c) => vuoto(c.contact_email)).length;
+  const senzaSito = daValutare.filter((c) => vuoto(c.website_url)).length;
   const nellaVista = candidati.filter((c) => c.status === filtroCandidatoAttuale && datiMancanti(c)).length;
   filtroMancanti.textContent = `Dati mancanti (${nellaVista})`;
   const dettaglio = [senzaEmail ? `${senzaEmail} senza email` : null, senzaSito ? `${senzaSito} senza sito` : null].filter(Boolean).join(", ");
   document.getElementById("conta-candidate").innerHTML =
-    `<strong>${candidati.length}</strong> fonti candidate in tutto · ` +
+    `<strong class="numero">${daValutare.length}</strong> ${daValutare.length === 1 ? "fonte da valutare" : "fonti da valutare"} · ` +
     (mancanti
       ? `<span class="manca"><strong>${mancanti}</strong> con dati mancanti</span> (${dettaglio})`
-      : "nessuna con dati mancanti");
+      : "nessuna con dati mancanti") +
+    ` · ${candidati.length} in tutto`;
 }
 
 function disegnaCandidate() {
