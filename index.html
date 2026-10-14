@@ -32,7 +32,6 @@
   }
   .marchio { display: flex; align-items: center; gap: var(--spazio-logo); text-decoration: none; color: var(--colore-bianco); }
   .marchio svg { display: block; flex: none; }
-  .marchio span { font-family: var(--font-titoli); font-weight: 700; font-size: var(--testo-sottotitolo); }
   .menu { display: flex; gap: var(--spazio-grande); }
   .menu a { font-weight: 500; font-size: var(--testo-testo); text-decoration: none; color: var(--colore-bianco); }
   .menu a:hover { text-decoration: underline; }
@@ -90,18 +89,20 @@
   .data .giorno { font-weight: 700; font-size: var(--testo-scadenza); }
   .testi { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--spazio-elenco-stretto); }
   .testa { display: flex; flex-direction: column; gap: var(--spazio-elenco-stretto); }
-  .etichetta { font-weight: 500; font-size: var(--testo-tag); letter-spacing: 0.1em; color: var(--colore-etichetta); }
+  .etichetta { display: flex; gap: var(--spazio-piccolo); font-weight: 500; font-size: var(--testo-tag); letter-spacing: 0.1em; color: var(--colore-etichetta); }
   .bando h3 { margin: 0; font-family: var(--font-titoli); font-weight: 700; font-size: 19px; line-height: 1.25; }
   .bando h3 a { text-decoration: none; }
   .bando:hover h3 a { text-decoration: underline; }
-  .ente { color: var(--colore-grigio-testo); font-weight: 500; }
+  .etichetta .arte-nome { display: none; }
+  /* Puccini 2.0: 2px tra titolo ed ente (le altre righe restano a 12). */
+  .ente { color: var(--colore-grigio-testo); font-weight: 500; margin-top: calc(2px - var(--spazio-elenco-stretto)); }
   .chip-riga { display: flex; flex-wrap: wrap; gap: var(--spazio-piccolo); }
   .chip {
     font-weight: 600; font-size: var(--testo-piccolo); line-height: 1.3; border-radius: var(--angoli-pillola);
     padding: var(--spazio-minimo) 10px; border: 1px solid transparent; white-space: nowrap;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis;
   }
-  .chip.premio { background: var(--colore-nero-caldo); color: var(--colore-bianco); }
+  .chip.premio { background: var(--colore-giallo); color: var(--colore-bianco); }
   .chip.gratis { background: var(--colore-verde); color: var(--colore-bianco); }
   .chip.info { background: var(--colore-bianco); border-color: var(--colore-linee); }
   .chip.arte { background: var(--colore-arte-tag); color: var(--colore-bianco); font-size: var(--testo-tag); }
@@ -112,8 +113,6 @@
   /* ---- telefono ---- */
   @media (max-width: 720px) {
     .testata { padding: var(--spazio-medio); }
-    .marchio svg { width: 81px; height: 28px; }
-    .marchio { gap: 10px; }
     .menu { display: none; }
     .apri-menu {
       display: block; font: inherit; font-weight: 500; font-size: var(--testo-testo);
@@ -131,6 +130,9 @@
     .bando { display: grid; grid-template-columns: var(--layout-scadenza) 1fr; gap: var(--spazio-elenco-stretto) var(--spazio-medio); padding: var(--spazio-card); }
     .testi { display: contents; }
     .testa { gap: var(--spazio-minimo); }
+    .etichetta .arte-nome { display: inline; }
+    .chip.arte { display: none; }
+    .ente { margin-top: calc(-1 * var(--spazio-elenco-stretto)); }
     .bando h3 { font-size: var(--testo-titolo-card); }
     .testi > :not(.testa) { grid-column: 1 / -1; }
   }
@@ -140,7 +142,7 @@
 
 <div class="giallo">
   <header class="testata" id="testata">
-    <a class="marchio" href="/opencalls/" aria-label="Bohème Vedetta"><svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="currentColor"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="currentColor"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="currentColor"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="currentColor"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="currentColor"/></svg><span>Vedetta</span></a>
+    <a class="marchio" href="/opencalls/" aria-label="Bohème Vedetta"><svg aria-label="Bohème" role="img" width="108" height="38" viewBox="0 0 108 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100.843 15.9479V13.3601H87.4727V34.2798H103L102.784 31.7978L93.403 28.3475V25.2206L96.7455 24.7893V21.6625L92.8639 21.1233V17.5652L100.843 15.9479Z" fill="currentColor"/><path d="M67.2454 37.852H64.8733L70.1567 9.81811H67.6767V8.30859H73.4992L76.8417 18.2283L80.292 8.30859H86.4379V9.81811H83.7423L88.163 34.2939H81.6937L79.1059 20.816L75.5478 31.3826L71.0192 20.0613L67.2454 37.852Z" fill="currentColor"/><path d="M52.1779 34.5032L52.3936 13.4777H67.8122V15.5264L58.3238 18.2219V22.6427L65.1863 22.9648L65.6184 26.2218L58.9708 26.7399V29.5433L70.1715 32.2372L70.5703 34.5032H52.1779Z" fill="currentColor"/><path d="M60.1568 12.3995C58.3454 12.4858 57.03 10.0274 56.5987 8.94918C57.7847 8.73354 58.3238 8.51787 59.0786 8.30225C59.6177 10.0274 61.6663 12.3276 60.1568 12.3995Z" fill="currentColor"/><path d="M40.6213 34.3953H37.4944L37.7101 9.05702L35.6615 8.41008V7.11621H41.8073L41.6995 15.742H46.875V7.11621H52.8053V8.41008L50.8644 9.05702V34.3953H47.6298L46.0124 24.26H42.3465L40.6213 34.3953Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M38.3805 23.6131C38.3805 30.0444 34.1324 35.258 28.8921 35.258C23.6518 35.258 19.4037 30.0444 19.4037 23.6131C19.4037 17.1818 23.6518 11.9683 28.8921 11.9683C34.1324 11.9683 38.3805 17.1818 38.3805 23.6131ZM32.9893 22.5349C32.9893 25.7505 31.3962 28.3573 29.4311 28.3573C27.466 28.3573 25.873 25.7505 25.873 22.5349C25.873 19.3192 27.466 16.7124 29.4311 16.7124C31.3962 16.7124 32.9893 19.3192 32.9893 22.5349Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0 4.52856C0 4.52856 9.27275 2.33451e-06 9.81186 0C14.7717 -2.14759e-05 19.3003 4.45247 19.3003 9.81186C19.3003 12.4635 18.1047 14.961 16.3043 16.7125C18.7889 18.4591 20.5941 21.4071 20.5941 24.5836C20.5941 29.8834 16.1047 34.1798 10.5666 34.1798H2.47992V5.06767L0.754759 6.14589L0 4.52856ZM12.8309 9.48833C12.8309 12.168 11.5275 14.3404 9.9197 14.3404C9.4385 14.3404 8.98457 14.1458 8.58469 13.8012V5.17542C8.98457 4.83089 9.4385 4.63631 9.9197 4.63631C11.5275 4.63631 12.8309 6.80863 12.8309 9.48833ZM13.2622 24.3679C13.2622 27.643 11.5726 30.2981 9.48841 30.2981C9.13786 30.2981 8.79848 30.223 8.47641 30.0825V18.6533C8.79848 18.5127 9.13786 18.4376 9.48841 18.4376C11.5726 18.4376 13.2622 21.0927 13.2622 24.3679Z" fill="currentColor"/></svg></a>
     <button class="apri-menu" id="apri-menu" aria-expanded="false" aria-controls="menu">Menu</button>
     <nav class="menu" id="menu">
       <a href="/opencalls/">Bandi</a>
@@ -264,7 +266,16 @@
     testi.className = "testi";
     const testa = document.createElement("div");
     testa.className = "testa";
-    testa.innerHTML = '<span class="etichetta">OPEN CALL</span><h3></h3>';
+    testa.innerHTML = '<span class="etichetta"><span>OPEN CALL</span></span><h3></h3>';
+    if (arti.length) {
+      // Sul telefono l'etichetta porta anche l'arte: "OPEN CALL · FOTOGRAFIA".
+      ["·", arti[0][0].toUpperCase()].forEach((testo) => {
+        const parte = document.createElement("span");
+        parte.className = "arte-nome";
+        parte.textContent = testo;
+        testa.firstChild.appendChild(parte);
+      });
+    }
     const h3 = testa.querySelector("h3");
     const link = b.opportunity_url || b.organization_website;
     if (link) {
@@ -293,14 +304,13 @@
     }
     if (b.location) chips.appendChild(chip("info", accorcia(b.location, 40)));
     arti.forEach(([nome, c]) => chips.appendChild(chip("arte", nome, c)));
-    if (chips.childNodes.length) testi.appendChild(chips);
-
     if (b.description) {
       const p = document.createElement("p");
       p.className = "descrizione";
       p.textContent = b.description;
       testi.appendChild(p);
     }
+    if (chips.childNodes.length) testi.appendChild(chips);
     li.appendChild(testi);
     return li;
   }
