@@ -296,7 +296,6 @@
     const chips = document.createElement("div");
     chips.className = "chip-riga";
     if (b.prizes) chips.appendChild(chip("premio", importo(b.prizes) || accorcia(b.prizes, 32)));
-    if (b.exhibition) chips.appendChild(chip("premio", "Mostra"));
     if (gratis(b)) chips.appendChild(chip("gratis", "Gratis"));
     else if (b.cost) {
       const i = importo(b.cost);
