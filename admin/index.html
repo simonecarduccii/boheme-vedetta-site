@@ -440,6 +440,7 @@
         <button data-filtro="proposte">Versione nuova</button>
         <button data-filtro="pubblicati">Pubblicati</button>
         <button data-filtro="tutti">Tutti</button>
+        <button data-filtro="segnalazioni">Segnalazioni<span id="conta-segnalazioni"></span></button>
       </nav>
     </div>
 
@@ -514,6 +515,15 @@
           <div class="messaggio" id="msg-selezione"></div>
         </div>
       </div>
+      <div id="vista-segnalazioni" class="giu" hidden>
+        <div class="riga-ricerca">
+          <button class="filtro attivo" data-filtro-segnalazione="pending">Da valutare</button>
+          <button class="filtro" data-filtro-segnalazione="imported">Diventate bandi</button>
+          <button class="filtro" data-filtro-segnalazione="rejected">Scartate</button>
+        </div>
+        <div id="stato-segnalazioni" class="stato-elenco"></div>
+        <ul id="elenco-segnalazioni" class="elenco"></ul>
+      </div>
     </div>
 
   </main>
@@ -575,6 +585,9 @@ const titoloPagina = document.getElementById("titolo-pagina");
 const sottotitoloPagina = document.getElementById("sottotitolo-pagina");
 const pilloleFonti = document.getElementById("pillole-fonti");
 const pilloleBandi = document.getElementById("pillole-bandi");
+const vistaSegnalazioni = document.getElementById("vista-segnalazioni");
+const statoSegnalazioniEl = document.getElementById("stato-segnalazioni");
+const elencoSegnalazioniEl = document.getElementById("elenco-segnalazioni");
 
 let zonaAttuale = "sources";
 let subSourcesAttuale = "tutte";
@@ -609,6 +622,7 @@ function mostraApp(sessione) {
   caricaBandi();
   caricaTutteFonti();
   caricaMail();
+  caricaSegnalazioni();
 }
 
 function mostraLogin() {
@@ -677,6 +691,11 @@ document.querySelectorAll("[data-filtro]").forEach((bottone) => {
   bottone.addEventListener("click", () => {
     document.querySelectorAll("[data-filtro]").forEach((b) => b.classList.remove("attivo"));
     bottone.classList.add("attivo");
+    // "Segnalazioni" è una vista a parte: quello che arriva dal modulo pubblico.
+    const segnalazioni = bottone.dataset.filtro === "segnalazioni";
+    vistaBandi.hidden = segnalazioni;
+    vistaSegnalazioni.hidden = !segnalazioni;
+    if (segnalazioni) { caricaSegnalazioni(); return; }
     filtroAttuale = bottone.dataset.filtro;
     disegnaElenco();
   });
@@ -2177,6 +2196,132 @@ document.querySelectorAll("[data-filtro-mail]").forEach((bottone) => {
     disegnaMail();
   });
 });
+
+// ---- segnalazioni dal modulo pubblico "Segnala un bando" ----
+let segnalazioni = [];
+let filtroSegnalazione = "pending";
+
+document.querySelectorAll("[data-filtro-segnalazione]").forEach((b) => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("[data-filtro-segnalazione]").forEach((x) => x.classList.remove("attivo"));
+    b.classList.add("attivo");
+    filtroSegnalazione = b.dataset.filtroSegnalazione;
+    disegnaSegnalazioni();
+  });
+});
+
+async function caricaSegnalazioni() {
+  if (!segnalazioni.length) statoSegnalazioniEl.textContent = "Carico le segnalazioni…";
+  const { data, error } = await supabase.from("bando_segnalazioni").select("*").order("created_at", { ascending: false });
+  if (error) {
+    statoSegnalazioniEl.textContent = /bando_segnalazioni|PGRST205|42P01/.test(`${error.code} ${error.message}`)
+      ? "Nessuna segnalazione per ora."
+      : "Non riesco a leggere le segnalazioni: " + inItaliano(error);
+    return;
+  }
+  segnalazioni = data;
+  disegnaSegnalazioni();
+}
+
+function disegnaSegnalazioni() {
+  const daValutare = segnalazioni.filter((s) => s.status === "pending").length;
+  document.getElementById("conta-segnalazioni").textContent = daValutare ? ` · ${daValutare}` : "";
+  const visibili = segnalazioni.filter((s) => s.status === filtroSegnalazione);
+  const vuoto = { pending: "Nessuna segnalazione da valutare.", imported: "Nessuna segnalazione diventata bando.", rejected: "Nessuna segnalazione scartata." };
+  statoSegnalazioniEl.textContent = visibili.length ? "" : vuoto[filtroSegnalazione];
+  elencoSegnalazioniEl.innerHTML = "";
+  visibili.forEach((s) => elencoSegnalazioniEl.appendChild(creaRigaSegnalazione(s)));
+}
+
+function creaRigaSegnalazione(s) {
+  const li = document.createElement("li");
+  li.className = "card" + (s.status !== "pending" ? " chiusa-stato" : "");
+  const testi = document.createElement("div");
+  testi.className = "testi";
+  const titolo = document.createElement("div");
+  titolo.className = "titolo";
+  titolo.textContent = s.title || dominio(s.url) || "Segnalazione";
+  const dettagli = document.createElement("div");
+  dettagli.className = "dettagli";
+  dettagli.innerHTML = rigaPunti([
+    `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(dominio(s.url))}</a>`,
+    s.category ? escapeHtml(s.category) : null,
+    s.organization ? escapeHtml(s.organization) : null,
+    s.deadline ? "scade il " + escapeHtml(new Date(s.deadline).toLocaleDateString("it-IT")) : null,
+    s.created_at ? "arrivata il " + escapeHtml(dataBreve(s.created_at)) : null,
+    s.contact_email ? `da <a href="mailto:${escapeHtml(s.contact_email)}">${escapeHtml(s.contact_email)}</a>` : null,
+  ]);
+  testi.append(titolo, dettagli);
+  if (s.notes) {
+    const note = document.createElement("div");
+    note.className = "anteprima";
+    note.style.whiteSpace = "pre-line";
+    note.textContent = s.notes;
+    testi.appendChild(note);
+  }
+  li.appendChild(testi);
+
+  const messaggio = document.createElement("div");
+  messaggio.className = "messaggio pieno";
+  const azioni = document.createElement("div");
+  azioni.className = "azioni-card";
+  const bottone = (testo, classe, azione) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = classe; b.textContent = testo;
+    b.addEventListener("click", azione);
+    return b;
+  };
+  async function segna(stato) {
+    const { error } = await supabase.from("bando_segnalazioni")
+      .update({ status: stato, reviewed_at: new Date().toISOString() }).eq("id", s.id);
+    if (error) throw error;
+    s.status = stato;
+  }
+  if (s.status === "pending") {
+    azioni.append(
+      // Crea un bando NON pubblicato in "Da rivedere": lo completi e lo pubblichi tu.
+      bottone("Crea bando da rivedere", "btn-primario", async (e) => {
+        const crea = e.currentTarget;
+        crea.disabled = true;
+        messaggio.className = "messaggio pieno";
+        messaggio.textContent = "Creo il bando…";
+        const { error } = await supabase.from("open_calls").insert({
+          title: s.title || dominio(s.url),
+          organization_name: s.organization || null,
+          opportunity_url: s.url,
+          deadline: s.deadline || null,
+          disciplines: s.category === "Fotografia" ? "fotografia" : null,
+          description: s.notes || null,
+          status: "new",
+          published: false,
+          raw_data: { origine: "segnalazione", segnalazione_id: s.id, categoria: s.category || null },
+        });
+        try {
+          if (error) throw error;
+          await segna("imported");
+        } catch (err) {
+          crea.disabled = false;
+          messaggio.className = "messaggio pieno errore";
+          messaggio.textContent = "Errore: " + inItaliano(err);
+          return;
+        }
+        disegnaSegnalazioni();
+        caricaBandi();
+      }),
+      bottone("Scarta", "btn-link", async () => {
+        try { await segna("rejected"); disegnaSegnalazioni(); }
+        catch (err) { messaggio.className = "messaggio pieno errore"; messaggio.textContent = "Errore: " + inItaliano(err); }
+      }),
+    );
+  } else {
+    azioni.appendChild(bottone("Rimetti da valutare", "btn-link", async () => {
+      try { await segna("pending"); disegnaSegnalazioni(); }
+      catch (err) { messaggio.className = "messaggio pieno errore"; messaggio.textContent = "Errore: " + inItaliano(err); }
+    }));
+  }
+  li.append(azioni, messaggio);
+  return li;
+}
 
 async function caricaMail() {
   statoMailEl.textContent = "Carico le mail…";
