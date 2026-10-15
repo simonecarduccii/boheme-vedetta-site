@@ -1,0 +1,43 @@
+# Rigenera le pagine statiche (un bando per pagina, città, regioni, sitemap.xml)
+# dai bandi pubblicati. Gratis: repository pubblico, minuti GitHub Actions inclusi.
+name: Pagine dei bandi
+
+on:
+  schedule:
+    - cron: "23 */3 * * *"   # ogni 3 ore
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/genera_pagine.py"
+      - "scripts/modelli/**"
+      - "index.html"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pagine
+  cancel-in-progress: false
+
+jobs:
+  genera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 scripts/genera_pagine.py
+      - name: Salva le pagine se sono cambiate
+        run: |
+          git add -A bandi citta regioni segnala sitemap.xml 2>/dev/null || true
+          # Le date di oggi nella sitemap da sole non bastano per un nuovo commit.
+          if git diff --cached --quiet -I '<lastmod>' -I 'DTSTAMP:'; then
+            echo "Nessun cambiamento."
+            exit 0
+          fi
+          git -c user.name="Bohème Vedetta" -c user.email="actions@users.noreply.github.com" \
+            commit -m "Pagine dei bandi aggiornate"
+          git push

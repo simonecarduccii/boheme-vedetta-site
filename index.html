@@ -110,8 +110,49 @@
     margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
+  .bando { cursor: pointer; }
+  .bando h3 a:focus-visible { outline: 2px solid var(--colore-giallo); outline-offset: 2px; }
+
+  /* ---- scheda del bando (si apre toccando la card) ---- */
+  .scheda {
+    width: min(640px, calc(100vw - 2 * var(--spazio-medio))); max-height: calc(100dvh - 2 * var(--spazio-medio));
+    border: 0; border-radius: var(--angoli-card); padding: 0; background: var(--colore-fondo-crema); color: var(--colore-nero-caldo);
+  }
+  .scheda::backdrop { background: rgba(37, 33, 20, 0.55); }
+  .scheda .dentro { position: relative; padding: var(--spazio-grande) var(--spazio-grande) 0; display: flex; flex-direction: column; gap: var(--spazio-medio); }
+  .scheda .chiudi {
+    position: absolute; top: 12px; right: 12px; z-index: 1;
+    font: inherit; font-size: 22px; line-height: 1; width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--colore-linee); background: var(--colore-bianco); color: var(--colore-nero-caldo); cursor: pointer;
+  }
+  .scheda .etichetta { padding-right: 44px; }
+  .scheda h2 { margin: 0; font-family: var(--font-titoli); font-weight: 700; font-size: 22px; line-height: 1.25; }
+  .scheda .ente { margin: 0; }
+  .voci { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: var(--spazio-piccolo) var(--spazio-medio); }
+  .voci dt { font-weight: 600; font-size: var(--testo-dettagli); color: var(--colore-grigio-testo); padding-top: 1px; }
+  .voci dd { margin: 0; overflow-wrap: anywhere; }
+  .voci ul { margin: 0; padding-left: 18px; }
+  .voci a { color: var(--colore-giallo-scuro-testo); }
+  .verificato { margin: 0; font-size: var(--testo-dettagli); color: var(--colore-grigio-testo); }
+  .azioni-scheda {
+    position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: var(--spazio-piccolo);
+    margin: 0 calc(-1 * var(--spazio-grande)); padding: var(--spazio-medio) var(--spazio-grande) var(--spazio-grande);
+    background: var(--colore-fondo-crema); border-top: 1px solid var(--colore-linee);
+  }
+  .bottone {
+    font: inherit; font-weight: 600; font-size: var(--testo-testo); text-decoration: none; cursor: pointer;
+    padding: var(--spazio-pillola-verticale) var(--spazio-pillola-orizzontale); border-radius: var(--angoli-pillola);
+    background: var(--colore-bianco); color: var(--colore-nero-caldo); border: 1px solid var(--colore-linee);
+  }
+  .bottone.pieno { background: var(--colore-nero-caldo); color: var(--colore-bianco); border-color: var(--colore-nero-caldo); }
+
   /* ---- telefono ---- */
   @media (max-width: 720px) {
+    .voci { grid-template-columns: 1fr; gap: 2px; }
+    .voci dd { margin-bottom: var(--spazio-piccolo); }
+    .scheda .dentro { padding: var(--spazio-card) var(--spazio-card) 0; }
+    .azioni-scheda { margin: 0 calc(-1 * var(--spazio-card)); padding: var(--spazio-medio) var(--spazio-card); }
+    .azioni-scheda .bottone { flex: 1 1 auto; text-align: center; }
     .testata { padding: var(--spazio-medio); }
     .menu { display: none; }
     .apri-menu {
@@ -147,6 +188,7 @@
     <button class="apri-menu" id="apri-menu" aria-expanded="false" aria-controls="menu">Menu</button>
     <nav class="menu" id="menu">
       <a href="/opencalls/">Bandi</a>
+      <a href="/opencalls/segnala/">Segnala un bando</a>
       <a href="https://instagram.com/bohememag" rel="noopener">Magazine</a>
       <a href="/">Chi siamo</a>
     </nav>
@@ -163,6 +205,8 @@
   <p class="stato" id="stato">Carico i bandi…</p>
   <div id="gruppi"></div>
 </main>
+
+<dialog class="scheda" id="scheda" aria-labelledby="scheda-titolo"><div class="dentro" id="scheda-dentro"></div></dialog>
 
 <script>
 (function () {
@@ -257,13 +301,16 @@
       testa.firstChild.appendChild(parte);
     });
     const h3 = testa.querySelector("h3");
-    const link = b.opportunity_url || b.organization_website;
-    if (link) {
-      const a = document.createElement("a");
-      a.href = link; a.target = "_blank"; a.rel = "noopener noreferrer";
-      a.textContent = b.title || "Senza titolo";
-      h3.appendChild(a);
-    } else h3.textContent = b.title || "Senza titolo";
+    // Il titolo apre la scheda del bando; il link ufficiale sta dentro la scheda.
+    const a = document.createElement("a");
+    a.href = "#bando-" + b.id;
+    a.textContent = b.title || "Senza titolo";
+    h3.appendChild(a);
+    li.addEventListener("click", (e) => {
+      if (e.target.closest("a") && e.target.closest("a") !== a) return;
+      e.preventDefault();
+      apriScheda(b, true);
+    });
     testi.appendChild(testa);
 
     if (b.organization_name) {
@@ -293,6 +340,147 @@
     li.appendChild(testi);
     return li;
   }
+
+  // ---- scheda del bando ----
+  const conSchema = (u) => { if (!u) return null; u = String(u).trim().replace(/ /g, "%20"); return /^https?:\/\//i.test(u) ? u : "https://" + u.replace(/^\/+/, ""); };
+  const dataLunga = (iso) => { const d = new Date(iso); return isNaN(d) ? null : d.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }); };
+  const slug = (t) => String(t || "bando").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "bando";
+
+  // File .ics con la scadenza: evento di un giorno intero e promemoria 7 giorni prima.
+  function scaricaCalendario(b) {
+    const d = giorno(b.deadline);
+    if (!d) return;
+    const ymd = (x) => x.getFullYear() + String(x.getMonth() + 1).padStart(2, "0") + String(x.getDate()).padStart(2, "0");
+    const dopo = new Date(d); dopo.setDate(dopo.getDate() + 1);
+    const esc = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+    const piega = (riga) => { const out = []; while (riga.length > 74) { out.push(riga.slice(0, 74)); riga = " " + riga.slice(74); } out.push(riga); return out.join("\r\n"); };
+    const url = conSchema(b.opportunity_url || b.organization_website) || "";
+    const ora = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    const righe = [
+      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Bohème//Vedetta//IT", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      "UID:" + b.id + "@bohememag.it", "DTSTAMP:" + ora,
+      "DTSTART;VALUE=DATE:" + ymd(d), "DTEND;VALUE=DATE:" + ymd(dopo),
+      "SUMMARY:" + esc("Scadenza: " + (b.title || "bando")),
+      "DESCRIPTION:" + esc([b.organization_name, url, "Da Bohème Vedetta: https://bohememag.it/opencalls/#bando-" + b.id].filter(Boolean).join("\n")),
+      url ? "URL:" + url : null,
+      "BEGIN:VALARM", "TRIGGER:-P7D", "ACTION:DISPLAY", "DESCRIPTION:" + esc("Tra 7 giorni scade: " + (b.title || "bando")), "END:VALARM",
+      "END:VEVENT", "END:VCALENDAR",
+    ].filter(Boolean).map(piega);
+    const blob = new Blob([righe.join("\r\n") + "\r\n"], { type: "text/calendar;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "scadenza-" + slug(b.title) + ".ics";
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  const schedaEl = document.getElementById("scheda");
+  const schedaDentro = document.getElementById("scheda-dentro");
+  function voce(dl, nome, valore) {
+    if (valore == null || valore === "") return;
+    const dt = document.createElement("dt"); dt.textContent = nome;
+    const dd = document.createElement("dd");
+    if (valore instanceof Node) dd.appendChild(valore); else dd.textContent = valore;
+    dl.append(dt, dd);
+  }
+  function linkEsterno(href, testo) {
+    const a = document.createElement("a");
+    a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = testo;
+    return a;
+  }
+
+  const luogoDi = (b) => {
+    const l = String(b.location || "").trim(), p = String(b.organization_country || "").trim();
+    return p && !l.toLowerCase().includes(p.toLowerCase()) ? [l, p].filter(Boolean).join(", ") : l;
+  };
+  const mostraUrl = (u) => { try { u = decodeURI(u); } catch (_) {} return u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""); };
+
+  function apriScheda(b, cambiaIndirizzo) {
+    const arte = arteDi(b);
+    schedaEl.style.setProperty("--colore-etichetta", "var(" + arte[1] + ")");
+    schedaDentro.innerHTML = "";
+    const chiudi = document.createElement("button");
+    chiudi.type = "button"; chiudi.className = "chiudi"; chiudi.setAttribute("aria-label", "Chiudi"); chiudi.textContent = "×";
+    chiudi.addEventListener("click", () => schedaEl.close());
+    const etichetta = document.createElement("span");
+    etichetta.className = "etichetta";
+    etichetta.textContent = "OPEN CALL · " + arte[0].toUpperCase();
+    const h2 = document.createElement("h2"); h2.id = "scheda-titolo"; h2.textContent = b.title || "Senza titolo";
+    schedaDentro.append(chiudi, etichetta, h2);
+    if (b.organization_name) {
+      const ente = document.createElement("p"); ente.className = "ente";
+      ente.textContent = b.organization_name + (b.organization_country ? " · " + b.organization_country : "");
+      schedaDentro.appendChild(ente);
+    }
+    if (b.description) { const p = document.createElement("p"); p.style.margin = "0"; p.textContent = b.description; schedaDentro.appendChild(p); }
+
+    const dl = document.createElement("dl"); dl.className = "voci";
+    voce(dl, "Scadenza", b.deadline ? dataLunga(b.deadline) : "Non indicata");
+    voce(dl, "Iscrizione", gratis(b) ? "Gratis" : b.cost);
+    voce(dl, "Premio", b.prizes);
+    voce(dl, "Mostra", b.exhibition);
+    voce(dl, "Luogo", luogoDi(b));
+    voce(dl, "Discipline", b.disciplines);
+    if (b.eligibility) {
+      const parti = String(b.eligibility).split(/;\s+|\n+/).map((x) => x.trim()).filter(Boolean);
+      if (parti.length > 1) {
+        const ul = document.createElement("ul");
+        parti.forEach((x) => { const li = document.createElement("li"); li.textContent = x; ul.appendChild(li); });
+        voce(dl, "Requisiti", ul);
+      } else voce(dl, "Requisiti", parti[0]);
+    }
+    const sito = conSchema(b.organization_website);
+    voce(dl, "Organizzatore", sito ? linkEsterno(sito, b.organization_name || sito.replace(/^https?:\/\/(www\.)?/, "")) : b.organization_name);
+    const ufficiale = conSchema(b.opportunity_url);
+    if (ufficiale) voce(dl, "Bando ufficiale", linkEsterno(ufficiale, mostraUrl(ufficiale)));
+    schedaDentro.appendChild(dl);
+
+    const verificato = b.link_verified_at || b.updated_at;
+    if (verificato && dataLunga(verificato)) {
+      const v = document.createElement("p"); v.className = "verificato";
+      v.textContent = "Verificato il " + dataLunga(verificato) + " dalla redazione di Bohème.";
+      schedaDentro.appendChild(v);
+    }
+
+    const azioni = document.createElement("div"); azioni.className = "azioni-scheda";
+    if (ufficiale || sito) {
+      const vai = linkEsterno(ufficiale || sito, "Vai al bando");
+      vai.className = "bottone pieno";
+      azioni.appendChild(vai);
+    }
+    if (b.deadline && giorno(b.deadline)) {
+      const cal = document.createElement("button");
+      cal.type = "button"; cal.className = "bottone"; cal.textContent = "Aggiungi al calendario";
+      cal.addEventListener("click", () => scaricaCalendario(b));
+      azioni.appendChild(cal);
+    }
+    const copia = document.createElement("button");
+    copia.type = "button"; copia.className = "bottone"; copia.textContent = "Copia link";
+    copia.addEventListener("click", () => {
+      const url = location.origin + location.pathname + "#bando-" + b.id;
+      (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+        .then(() => { copia.textContent = "Link copiato"; }, () => { prompt("Copia il link:", url); });
+    });
+    azioni.appendChild(copia);
+    schedaDentro.appendChild(azioni);
+
+    if (cambiaIndirizzo && location.hash !== "#bando-" + b.id) history.pushState(null, "", "#bando-" + b.id);
+    if (!schedaEl.open) schedaEl.showModal();
+    chiudi.focus();
+  }
+  schedaEl.addEventListener("click", (e) => { if (e.target === schedaEl) schedaEl.close(); });
+  schedaEl.addEventListener("close", () => {
+    if (location.hash.startsWith("#bando-")) history.replaceState(null, "", location.pathname + location.search);
+  });
+  function schedaDaIndirizzo() {
+    const m = location.hash.match(/^#bando-(.+)$/);
+    if (!m) { if (schedaEl.open) schedaEl.close(); return; }
+    const b = bandi.find((x) => String(x.id) === decodeURIComponent(m[1]));
+    if (b) apriScheda(b, false);
+  }
+  window.addEventListener("hashchange", schedaDaIndirizzo);
 
   // ---- stato della pagina ----
   let bandi = [];
@@ -360,6 +548,7 @@
         .map((b) => ({ ...b, _gruppo: gruppoDi(b) }))
         .filter((b) => b._gruppo >= 0);
       disegna();
+      schedaDaIndirizzo();
     })
     .catch((err) => {
       statoEl.textContent = "Non riesco a leggere i bandi in questo momento.";
